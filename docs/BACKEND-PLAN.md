@@ -23,10 +23,17 @@ Nicht Teil der ersten Version: Apple/Google Wallet, Wochenauswertung (Groß), Ka
 | Datenbankzugriff | Drizzle ORM mit SQL-Migrationen | Typsicher, SQL bleibt lesbar |
 | Frontend | Die jetzige Oberfläche, ohne Framework | Funktioniert schon, nur `localStorage` wird durch API-Aufrufe ersetzt |
 | Hosting | Server in Deutschland (z. B. Hetzner), Docker Compose, Caddy für HTTPS | Günstig, DSGVO-freundlich, einfach zu betreiben |
-| Bezahlung | Stripe Billing (Alternative: Mollie) | Abos, Rechnungen, SEPA und Kundenportal fertig vorhanden |
+| Bezahlung | **Stripe Billing** (entschieden) | Abos, Rechnungen, SEPA und Kundenportal fertig vorhanden |
+| Testphase | **14 Tage kostenlos** (entschieden) | `TRIAL_DAYS` in `src/domain/plans.ts` |
 | E-Mail | Anbieter mit Sitz in der EU (z. B. Brevo) | Bestätigung und Passwort-Reset |
 
-Offen und von dir zu entscheiden: Domain, Hosting-Anbieter, Zahlungsanbieter, E-Mail-Anbieter, Testphase (z. B. 14 Tage gratis).
+Domain: vorhanden, wird über `PUBLIC_URL` eingetragen.
+Noch offen: Hosting-Anbieter, E-Mail-Anbieter.
+
+Abweichungen bei der Umsetzung von Phase 0:
+
+- Tests laufen mit dem eingebauten Test-Runner von Node (`node:test`) statt vitest. Die sicheren vitest-Versionen ließen sich mit npm 10 nicht installieren, und `node:test` braucht keine zusätzliche Abhängigkeit.
+- Lint und Format mit Biome.
 
 ## Rollen und Anmeldung
 
@@ -185,6 +192,7 @@ Stripe
 
 ```
 public/              Statische Seiten und Assets (aus der Demo)
+drizzle/             SQL-Migrationen (erzeugt mit npm run db:generate)
 src/
   server.ts          Fastify-Start
   routes/            auth, business, programs, kasse, public, billing, webhooks
@@ -203,7 +211,7 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 
 | Phase | Inhalt | Fertig, wenn |
 | --- | --- | --- |
-| 0. Grundgerüst | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests), Testserver | `docker compose up` startet App und Datenbank, CI ist grün |
+| 0. Grundgerüst ✓ | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests) | `docker compose up` startet App und Datenbank, CI ist grün |
 | 1. Konten | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
 | 2. Karte einrichten | Programme und Prämien, Seite `/konto` | Die Einstellungen landen in der Datenbank |
 | 3. Gast-Karten | Karte ausgeben, `/k/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |

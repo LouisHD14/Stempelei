@@ -397,7 +397,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
           <a class="btn primary big" href="#preise">Pakete ansehen</a>
           <a class="btn big" href="#kasse">Kasse ausprobieren</a>
         </div>
-        <p class="price-line">Ab 29 € im Monat. Das sind 0,97 € am Tag.</p>
+        <p class="price-line">Ab 29 € im Monat, die ersten 14 Tage kostenlos.</p>
       </div>
 
       <div class="try" aria-label="Zum Ausprobieren">
@@ -478,7 +478,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
     <section class="page-head">
       <span class="label">Preise</span>
       <h1>Ein Paket für jede Größe.</h1>
-      <p class="lead">Das kleinste Paket kostet 29 € im Monat, also weniger als 1 € am Tag. Wer mehr Standorte oder Karten braucht, nimmt Mittel oder Groß.</p>
+      <p class="lead">Das kleinste Paket kostet 29 € im Monat, also weniger als 1 € am Tag. Wer mehr Standorte oder Karten braucht, nimmt Mittel oder Groß. Jedes Paket kannst du 14 Tage kostenlos testen.</p>
     </section>
 
     <section class="tiers" aria-label="Pakete">
@@ -524,7 +524,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
         <a class="btn" href="#kasse">Kasse ausprobieren</a>
       </article>
     </section>
-    <p class="pricenote">Alle Preise pro Monat und Betrieb, <span class="ph">inkl./zzgl.</span> gesetzlicher Umsatzsteuer. Preis pro Tag gerechnet mit 30 Tagen und auf den Cent gerundet.</p>
+    <p class="pricenote">Die ersten 14 Tage sind kostenlos. Alle Preise pro Monat und Betrieb, <span class="ph">inkl./zzgl.</span> gesetzlicher Umsatzsteuer. Preis pro Tag gerechnet mit 30 Tagen und auf den Cent gerundet.</p>
 
     <section class="section">
       <header><h2>Pakete im Vergleich</h2></header>
@@ -569,7 +569,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
         <details><summary>Was ist ein Standort?</summary><p>Eine Filiale mit eigener Adresse. Stempel gelten in allen Standorten deines Betriebs, die Auswertung zeigt sie getrennt.</p></details>
         <details><summary>Was ist eine Stempelkarte im Paket?</summary><p>Eine Kartenart mit eigener Regel und eigenen Prämien, zum Beispiel eine Mittagskarte und eine Kaffeekarte. Jede Kartenart darf beliebig viele Gäste haben.</p></details>
         <details><summary>Was ist ein Team-Zugang?</summary><p>Eine Person aus deinem Team, die an der Kasse stempeln darf. Jede Person bekommt einen eigenen Code, damit der Verlauf zeigt, wer gestempelt hat.</p></details>
-        <details><summary>Wie lange läuft ein Paket?</summary><p>Abgerechnet wird monatlich. Mindestlaufzeit und Kündigungsfrist: <span class="ph">noch festlegen</span>.</p></details>
+        <details><summary>Wie lange läuft ein Paket?</summary><p>Die ersten 14 Tage sind kostenlos. Danach wird monatlich abgerechnet, per Karte oder SEPA-Lastschrift über Stripe. Mindestlaufzeit und Kündigungsfrist: <span class="ph">noch festlegen</span>.</p></details>
       </div>
     </section>
   </main>
@@ -844,7 +844,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
         <li>deine Einstellungen: Kartenname, Stempelregel, Prämien, Stempelfarbe und die Zugangscodes deines Teams</li>
       </ul>
       <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, die Erfüllung des Vertrags mit dir. Rechnungsdaten bewahren wir außerdem nach Art. 6 Abs. 1 lit. c DSGVO so lange auf, wie Steuer- und Handelsrecht es verlangen.</p>
-      <p>Die Zahlung wickelt <span class="ph">Zahlungsdienstleister, Sitz</span> ab. Deine Zahlungsdaten gibst du direkt bei diesem Anbieter ein. Wir erhalten von ihm den Zahlungsstatus, aber keine vollständigen Karten- oder Kontodaten.</p>
+      <p>Die Zahlung wickelt die Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irland ab. Deine Zahlungsdaten gibst du direkt bei Stripe ein. Wir erhalten von Stripe den Zahlungsstatus, aber keine vollständigen Karten- oder Kontodaten. Die Datenschutzerklärung von Stripe findest du unter stripe.com/de/privacy.</p>
 
       <h2>7. Stempelkarten der Gäste</h2>
       <p>Wenn du als Gast eine digitale Stempelkarte nutzt, ist der Betrieb verantwortlich, bei dem du sammelst. Wir verarbeiten die Daten in seinem Auftrag. Eine Karte braucht keinen Namen und kein Konto. An der Kasse liest das Team nur die Kartennummer aus deinem QR-Code.</p>
@@ -864,11 +864,11 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; ju
           <thead><tr><th>Empfänger</th><th>Wofür</th><th>Daten</th></tr></thead>
           <tbody>
             <tr><td><span class="ph">Hosting-Anbieter</span></td><td>Betrieb von Website und Datenbank</td><td>alle Daten, die in Stempelei gespeichert sind</td></tr>
-            <tr><td><span class="ph">Zahlungsdienstleister</span></td><td>Abrechnung deines Pakets</td><td>Daten des Betriebs, Rechnungs- und Zahlungsdaten</td></tr>
+            <tr><td>Stripe Payments Europe, Limited (Irland)</td><td>Abrechnung deines Pakets</td><td>Daten des Betriebs, Rechnungs- und Zahlungsdaten</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Eine Übermittlung in Länder außerhalb der EU und des EWR findet <span class="ph">nicht</span> statt. Falls doch, sichern wir sie über <span class="ph">Standardvertragsklauseln oder einen Angemessenheitsbeschluss</span> ab. Zu Werbezwecken geben wir keine Daten weiter.</p>
+      <p>Stripe kann Daten an die Stripe, Inc. in den USA übermitteln. Grundlage dafür sind der Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework und die Standardvertragsklauseln der EU-Kommission. Beim Hosting findet eine Übermittlung in Länder außerhalb der EU und des EWR <span class="ph">nicht</span> statt. Zu Werbezwecken geben wir keine Daten weiter.</p>
 
       <h2>9. Speicherdauer</h2>
       <p>Wir speichern Daten nur so lange, wie wir sie für den jeweiligen Zweck brauchen.</p>
