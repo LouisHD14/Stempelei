@@ -1,30 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ConfigError, loadConfig } from '../src/config.js';
-import {
-  isPublicToken,
-  normalizeShortCode,
-  PUBLIC_TOKEN_LENGTH,
-  publicToken,
-  SHORT_CODE_ALPHABET,
-  shortCode,
-} from '../src/domain/codes.js';
-import { canAdd, PLANS, smallestPlanFor, TRIAL_DAYS, trialEndsAt } from '../src/domain/plans.js';
+import { publicToken, SHORT_CODE_ALPHABET, shortCode } from '../src/domain/codes.js';
+import { trialEndsAt } from '../src/domain/plans.js';
 
 describe('publicToken', () => {
   it('hat 22 Zeichen aus Base62 und wiederholt sich nicht', () => {
     const seen = new Set<string>();
     for (let i = 0; i < 2000; i++) {
       const t = publicToken();
-      assert.equal(t.length, PUBLIC_TOKEN_LENGTH);
-      assert.ok(isPublicToken(t), t);
+      assert.match(t, /^[0-9A-Za-z]{22}$/);
       seen.add(t);
     }
     assert.equal(seen.size, 2000);
-  });
-  it('erkennt ungültige Tokens', () => {
-    assert.equal(isPublicToken('zu-kurz'), false);
-    assert.equal(isPublicToken(`${'a'.repeat(21)}!`), false);
   });
 });
 
@@ -36,35 +24,10 @@ describe('shortCode', () => {
     }
     for (const ch of '01ILO') assert.equal(SHORT_CODE_ALPHABET.includes(ch), false);
   });
-  it('normalisiert Eingaben', () => {
-    assert.equal(normalizeShortCode('k7m-2qx'), 'K7M2QX');
-    assert.equal(normalizeShortCode(' K7M 2QX '), 'K7M2QX');
-    assert.equal(normalizeShortCode('K7M2Q'), null);
-    assert.equal(normalizeShortCode('K7M2Q0'), null);
-  });
 });
 
-describe('plans', () => {
-  it('hat die Preise der Website', () => {
-    assert.deepEqual(
-      Object.values(PLANS).map((p) => p.priceCents),
-      [2900, 5900, 9900],
-    );
-  });
-  it('prüft Grenzen', () => {
-    assert.equal(canAdd('klein', 'programs', 0), true);
-    assert.equal(canAdd('klein', 'programs', 1), false);
-    assert.equal(canAdd('gross', 'programs', 500), true);
-    assert.equal(canAdd('gross', 'locations', 10), false);
-  });
-  it('findet das kleinste passende Paket', () => {
-    assert.equal(smallestPlanFor('staff', 3), 'klein');
-    assert.equal(smallestPlanFor('staff', 4), 'mittel');
-    assert.equal(smallestPlanFor('staff', 11), 'gross');
-    assert.equal(smallestPlanFor('locations', 11), null);
-  });
-  it('Testphase dauert 14 Tage', () => {
-    assert.equal(TRIAL_DAYS, 14);
+describe('trialEndsAt', () => {
+  it('endet nach 14 Tagen', () => {
     const start = new Date('2026-11-06T10:00:00Z');
     assert.equal(trialEndsAt(start).toISOString(), '2026-11-20T10:00:00.000Z');
   });

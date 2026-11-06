@@ -3,17 +3,7 @@ import { ConfigError, loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 
 async function main(): Promise<void> {
-  let config: ReturnType<typeof loadConfig>;
-  try {
-    config = loadConfig();
-  } catch (err) {
-    if (err instanceof ConfigError) {
-      console.error(err.message);
-      process.exit(1);
-    }
-    throw err;
-  }
-
+  const config = loadConfig();
   const conn = createDb(config.databaseUrl);
   const app = await buildApp({ config, pingDb: conn.ping });
 
@@ -38,6 +28,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-  console.error('Start fehlgeschlagen:', err);
+  console.error(err instanceof ConfigError ? err.message : err);
   process.exit(1);
 });

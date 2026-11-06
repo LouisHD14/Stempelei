@@ -70,7 +70,6 @@ export async function buildApp({ config, pingDb }: AppDeps): Promise<FastifyInst
 
   await app.register(fastifyStatic, {
     root: PUBLIC_DIR,
-    index: ['index.html'],
     setHeaders(res, path) {
       res.header('Cache-Control', path.endsWith('.html') ? 'no-cache' : 'public, max-age=86400');
     },

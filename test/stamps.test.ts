@@ -5,10 +5,8 @@ import {
   type CardState,
   cardLength,
   giveStamps,
-  nextReward,
   type Reward,
   redeemReward,
-  validateRewards,
 } from '../src/domain/stamps.js';
 
 const espresso: Reward = { id: 'a', threshold: 5, text: 'Espresso' };
@@ -50,14 +48,12 @@ describe('giveStamps', () => {
   });
 });
 
-describe('availableRewards und nextReward', () => {
+describe('availableRewards', () => {
   it('zeigt nichts unter der ersten Schwelle', () => {
     assert.deepEqual(availableRewards(card(4), rewards), []);
-    assert.equal(nextReward(card(4), rewards), espresso);
   });
   it('zeigt mehrere freie Prämien sortiert', () => {
     assert.deepEqual(availableRewards(card(10), rewards), [espresso, dessert]);
-    assert.equal(nextReward(card(10), rewards), undefined);
   });
   it('blendet eingelöste Prämien aus', () => {
     assert.deepEqual(availableRewards(card(10, ['a']), rewards), [dessert]);
@@ -96,31 +92,5 @@ describe('redeemReward', () => {
     const r = redeemReward(card(12), [espresso], 'a');
     assert.ok(r.ok);
     assert.deepEqual(r.card, card(7, [], 2));
-  });
-});
-
-describe('validateRewards', () => {
-  it('akzeptiert eine gültige Liste', () => {
-    assert.deepEqual(validateRewards([{ threshold: 5, text: 'Kaffee' }]), []);
-  });
-  it('meldet eine leere Liste', () => {
-    assert.equal(validateRewards([]).length, 1);
-  });
-  it('meldet zu viele Prämien', () => {
-    const six = Array.from({ length: 6 }, (_, i) => ({ threshold: i + 1, text: 'x' }));
-    assert.match(validateRewards(six).join(), /höchstens 5/);
-  });
-  it('meldet ungültige Werte mit Nummer der Prämie', () => {
-    const problems = validateRewards([
-      { threshold: 0, text: 'ok' },
-      { threshold: 5, text: '   ' },
-      { threshold: '7', text: 'x'.repeat(41) },
-    ]);
-    assert.deepEqual(problems, [
-      'Prämie 1: Die Stempelzahl muss zwischen 1 und 20 liegen.',
-      'Prämie 2: Beschreibe, was es gibt.',
-      'Prämie 3: Die Stempelzahl muss zwischen 1 und 20 liegen.',
-      'Prämie 3: Der Text darf höchstens 40 Zeichen haben.',
-    ]);
   });
 });

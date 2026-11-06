@@ -1,11 +1,9 @@
 /**
- * Stempel-Logik ohne Datenbank: geben, einlösen, Prämien prüfen.
+ * Stempel-Logik ohne Datenbank: geben und einlösen.
  * Alle Funktionen sind rein. Sie verändern nichts und geben einen neuen Zustand zurück.
  */
 
 export const MAX_STAMPS = 20;
-export const MAX_REWARDS = 5;
-export const MAX_REWARD_TEXT = 40;
 
 export interface Reward {
   id: string;
@@ -32,10 +30,6 @@ export function cardLength(rewards: readonly Reward[]): number {
 
 export function availableRewards(card: CardState, rewards: readonly Reward[]): Reward[] {
   return sortRewards(rewards).filter((r) => r.threshold <= card.stamps && !card.claimed.includes(r.id));
-}
-
-export function nextReward(card: CardState, rewards: readonly Reward[]): Reward | undefined {
-  return sortRewards(rewards).find((r) => r.threshold > card.stamps);
 }
 
 export type GiveResult =
@@ -74,28 +68,4 @@ export function redeemReward(card: CardState, rewards: readonly Reward[], reward
     return { ok: true, reward, restarted, card: { stamps: carry, cycle: card.cycle + 1, claimed: [] } };
   }
   return { ok: true, reward, restarted, card: { ...card, claimed } };
-}
-
-/** Prüft eine Prämienliste aus dem Formular „Karte einrichten“. Gibt verständliche Fehler zurück. */
-export function validateRewards(rewards: readonly { threshold: unknown; text: unknown }[]): string[] {
-  const problems: string[] = [];
-  if (rewards.length < 1) problems.push('Lege mindestens eine Prämie an.');
-  if (rewards.length > MAX_REWARDS) problems.push(`Eine Karte hat höchstens ${MAX_REWARDS} Prämien.`);
-  rewards.forEach((r, i) => {
-    const n = i + 1;
-    if (
-      typeof r.threshold !== 'number' ||
-      !Number.isInteger(r.threshold) ||
-      r.threshold < 1 ||
-      r.threshold > MAX_STAMPS
-    ) {
-      problems.push(`Prämie ${n}: Die Stempelzahl muss zwischen 1 und ${MAX_STAMPS} liegen.`);
-    }
-    if (typeof r.text !== 'string' || r.text.trim() === '') {
-      problems.push(`Prämie ${n}: Beschreibe, was es gibt.`);
-    } else if (r.text.trim().length > MAX_REWARD_TEXT) {
-      problems.push(`Prämie ${n}: Der Text darf höchstens ${MAX_REWARD_TEXT} Zeichen haben.`);
-    }
-  });
-  return problems;
 }
