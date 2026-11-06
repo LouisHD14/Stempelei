@@ -51,7 +51,7 @@ Alle Einstellungen kommen aus Umgebungsvariablen, siehe `.env.example`. Fehlt et
 ## Aufbau
 
 ```
-public/                Website (Demo): index.html, CSS, JS, Schriften, QR-Bibliotheken
+public/                Website (Demo): index.html, CSS (tokens.css, base.css, style.css), JS, Schriften, QR-Bibliotheken
 src/
   server.ts            Start und sauberes Herunterfahren
   app.ts               Fastify: Sicherheits-Header, /api/health, statische Dateien
@@ -61,13 +61,17 @@ src/
   db/migrate.ts        Migrationen ausführen
   domain/stamps.ts     Stempel-Logik: geben, einlösen, neue Runde
   domain/codes.ts      Gast-Token und Kurzcodes
-  domain/plans.ts      Pakete, Grenzen, 14 Tage Testphase
+  domain/plans.ts      14 Tage Testphase
 drizzle/               SQL-Migrationen
 test/                  Tests mit node:test
 tools/build-single.mjs Ein-Datei-Version der Demo
 ```
 
+## Gestaltung
+
+Die Website folgt dem Design-Skill [Hallmark](https://github.com/Nutlope/hallmark), Theme Coral: warmes Papier, Bedienelemente als Prägekarten, Koralle nur für eingelöste Prämien. Die Entscheidungen stehen als Kommentar oben in `public/assets/css/style.css`, das Log in `.hallmark/log.json`. Farben, Abstände und Schriftgrößen kommen ausschließlich aus `tokens.css`.
+
 ## Lizenzen der eingebundenen Dateien
 
-- Schriften Bricolage Grotesque, DM Sans, DM Mono: SIL Open Font License (`public/assets/fonts/`)
+- Schriften Hanken Grotesk und Geist Mono: SIL Open Font License (`public/assets/fonts/`)
 - qrcode-generator: MIT, jsQR: Apache-2.0 (`public/assets/vendor/`)

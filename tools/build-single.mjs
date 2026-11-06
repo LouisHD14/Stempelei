@@ -12,13 +12,19 @@ const read = (p) => readFileSync(join(pub, p), 'utf8');
 
 const html = read('index.html');
 
-// CSS mit Schriften als data-URI
-const cssPath = 'assets/css/style.css';
-const css = read(cssPath).replace(/url\("\.\.\/fonts\/([^"]+\.woff2)"\)/g, (_, file) => {
-  const b64 = readFileSync(join(pub, 'assets/fonts', file)).toString('base64');
-  return `url("data:font/woff2;base64,${b64}")`;
-});
-if (/url\("\.\.\//.test(css)) throw new Error('CSS enthält noch relative URLs');
+// CSS mit aufgelösten @import-Regeln; Schriften und Texturen als data-URI
+const MIME = { woff2: 'font/woff2', svg: 'image/svg+xml' };
+function loadCss(rel) {
+  const dir = dirname(rel);
+  return read(rel)
+    .replace(/@import url\("([^"]+\.css)"\);/g, (_, file) => loadCss(join(dir, file)))
+    .replace(/url\("((?:\.\.\/|\.\/)?[^"):]+\.(woff2|svg))"\)/g, (_, file, ext) => {
+      const b64 = readFileSync(join(pub, dir, file)).toString('base64');
+      return `url("data:${MIME[ext]};base64,${b64}")`;
+    });
+}
+const css = loadCss('assets/css/style.css');
+if (/@import|url\("(?!data:)/.test(css)) throw new Error('CSS enthält noch Imports oder relative URLs');
 
 // Skripte einbetten; "</script" darf im Inhalt nicht vorkommen
 const inlineScript = (src) => {
@@ -34,8 +40,12 @@ if (!bodyMatch || !titleMatch) throw new Error('index.html: <body> oder <title> 
 const body = bodyMatch[1].replace(/<script src="([^"]+)"><\/script>/g, (_, src) => inlineScript(src));
 if (/<script src=/.test(body)) throw new Error('Nicht eingebettetes Skript gefunden');
 
+// Inline-Skripte aus dem <head> (z. B. die js-Klasse) bleiben erhalten
+const headScripts = (/<head>([\s\S]*?)<\/head>/.exec(html)?.[1].match(/<script>[\s\S]*?<\/script>/g)) ?? [];
+
 const headParts = [
   titleMatch[0],
+  ...headScripts,
   '<meta name="claude:viewport-fit-sides" content="cover">',
   `<style>\n${css}\n</style>`,
 ];
