@@ -21,3 +21,5 @@ export function createDb(url: string, options: { max?: number } = {}) {
     },
   };
 }
+
+export type Db = ReturnType<typeof createDb>['db'];

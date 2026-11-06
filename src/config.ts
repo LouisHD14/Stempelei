@@ -8,6 +8,10 @@ export interface Config {
   databaseUrl: string;
   trustProxy: boolean;
   logLevel: string;
+  /** SMTP-Zugang, z. B. smtp://login:schluessel@smtp-relay.brevo.com:587. Fehlt er, landen Mails im Log. */
+  smtpUrl: string | null;
+  /** Absender, z. B. "Stempelei <hallo@deine-domain.de>" */
+  mailFrom: string;
 }
 
 export class ConfigError extends Error {
@@ -70,6 +74,17 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     problems.push(`LOG_LEVEL muss einer dieser Werte sein: ${LOG_LEVELS.join(', ')}.`);
   }
 
+  const smtpUrl = env.SMTP_URL || null;
+  if (smtpUrl && !/^smtps?:\/\//.test(smtpUrl)) {
+    problems.push('SMTP_URL muss mit smtp:// oder smtps:// beginnen.');
+  } else if (!smtpUrl && nodeEnv === 'production') {
+    problems.push('SMTP_URL fehlt, z. B. smtp://login:schluessel@smtp-relay.brevo.com:587.');
+  }
+  const mailFrom = env.MAIL_FROM || 'Stempelei <hallo@localhost>';
+  if (!env.MAIL_FROM && nodeEnv === 'production') {
+    problems.push('MAIL_FROM fehlt, z. B. "Stempelei <hallo@deine-domain.de>".');
+  }
+
   if (problems.length) throw new ConfigError(problems);
 
   return {
@@ -80,5 +95,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     databaseUrl,
     trustProxy: trustRaw === 'true',
     logLevel,
+    smtpUrl,
+    mailFrom,
   };
 }

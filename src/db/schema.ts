@@ -74,6 +74,24 @@ export const sessions = pgTable(
   (t) => [index('sessions_user_idx').on(t.userId)],
 );
 
+export const emailTokenPurposeEnum = pgEnum('email_token_purpose', ['verify', 'reset']);
+
+/** Einmal-Links aus E-Mails (Adresse bestätigen, Passwort zurücksetzen). Gespeichert wird nur der Hash. */
+export const emailTokens = pgTable(
+  'email_tokens',
+  {
+    tokenHash: text('token_hash').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    purpose: emailTokenPurposeEnum('purpose').notNull(),
+    expiresAt: tz('expires_at').notNull(),
+    usedAt: tz('used_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('email_tokens_user_idx').on(t.userId)],
+);
+
 export const locations = pgTable(
   'locations',
   {

@@ -33,6 +33,7 @@ a:hover { text-decoration-color: var(--color-accent-2); }
 .fill { padding: 0 var(--space-2xs); border: 1px dashed color-mix(in oklch, var(--color-muted) 70%, transparent); border-radius: 3px; color: var(--color-muted); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .flash { min-height: 1lh; font-size: var(--text-sm); color: var(--color-muted); }
 .flash.err { color: var(--color-error); }
+.flash.ok { color: var(--color-success); }
 .view { display: block; }
 
 /* ---------- Material ---------- */
@@ -224,6 +225,13 @@ td.fig { white-space: nowrap; }
 .login h1 { font-size: var(--text-section); }
 .login form { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
 .login input { flex: 1 1 140px; width: auto; text-align: center; font-family: var(--font-outlier); font-size: var(--text-lg); }
+/* Konto-Seiten: Registrieren, Anmelden, Passwort */
+.auth { max-width: 520px; margin-inline: auto; padding: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-md); }
+.auth h1 { font-size: var(--text-section); }
+.auth form { display: flex; flex-direction: column; gap: var(--space-md); }
+.auth form .btn, .auth > .btn { align-self: flex-start; }
+.auth input[aria-invalid="true"] { border-color: var(--color-error); }
+@media (max-width: 560px) { .auth { padding: var(--space-lg); } }
 .kasse { display: flex; flex-direction: column; gap: var(--space-lg); }
 .kasse-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-md); flex-wrap: wrap; }
 .kasse-head > div { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }

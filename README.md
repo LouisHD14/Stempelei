@@ -2,7 +2,7 @@
 
 Digitale Stempelkarten für Restaurants, Cafés und Läden. Gäste sammeln Stempel auf dem Handy, Betriebe stempeln an der Kasse per QR-Scan.
 
-Stand: Phase 0 des Backends ist fertig, also Server, Datenbank, Tests und CI. Die Website in `public/` ist noch die Demo mit Speicherung im Browser. Den Plan findest du in [`docs/BACKEND-PLAN.md`](docs/BACKEND-PLAN.md).
+Stand: Phase 1 des Backends ist fertig. Betriebe können sich registrieren, ihre E-Mail bestätigen, sich anmelden und ihr Passwort zurücksetzen. Die Kasse auf der Startseite ist noch die Demo mit Speicherung im Browser. Den Plan findest du in [`docs/BACKEND-PLAN.md`](docs/BACKEND-PLAN.md).
 
 ## Schnellstart mit Docker
 
@@ -11,6 +11,8 @@ docker compose up --build
 ```
 
 Danach ist die Website unter http://localhost:3000 erreichbar. Beim Start laufen die Datenbank-Migrationen automatisch.
+
+Ohne Mail-Zugang lege eine `.env` mit `NODE_ENV=development` und `PUBLIC_URL=http://localhost:3000` an. Dann stehen die E-Mails mit ihren Links im Log (`docker compose logs app`).
 
 ## Entwicklung ohne Docker
 
@@ -47,15 +49,20 @@ Alle Einstellungen kommen aus Umgebungsvariablen, siehe `.env.example`. Fehlt et
 | `PORT`, `HOST` | nein | Standard `3000` und `0.0.0.0` |
 | `TRUST_PROXY` | nein | `true`, wenn ein Proxy wie Caddy davor läuft |
 | `LOG_LEVEL` | nein | Standard `info` |
+| `SMTP_URL` | im Betrieb | Mail-Versand, bei Brevo `smtp://LOGIN:SCHLUESSEL@smtp-relay.brevo.com:587` (`@` im Login als `%40` schreiben). Fehlt er, stehen die Mails im Log |
+| `MAIL_FROM` | im Betrieb | Absender, z. B. `Stempelei <hallo@deine-domain.de>`. Die Domain muss in Brevo bestätigt sein (SPF, DKIM, DMARC) |
 
 ## Aufbau
 
 ```
-public/                Website (Demo): index.html, CSS (tokens.css, base.css, style.css), JS, Schriften, QR-Bibliotheken
+public/                Website: index.html (Demo), Konto-Seiten (registrieren.html, anmelden.html, …), CSS, JS, Schriften, QR-Bibliotheken
 src/
   server.ts            Start und sauberes Herunterfahren
   app.ts               Fastify: Sicherheits-Header, /api/health, statische Dateien
   config.ts            Umgebungsvariablen prüfen
+  routes/auth.ts       Konten: registrieren, bestätigen, anmelden, Passwort zurücksetzen
+  auth/crypto.ts       Argon2id für Passwörter, Tokens und ihre Hashes
+  mail.ts              Mail-Versand über SMTP (Brevo) oder ins Log
   db/schema.ts         Datenmodell (Drizzle)
   db/client.ts         Datenbankverbindung
   db/migrate.ts        Migrationen ausführen

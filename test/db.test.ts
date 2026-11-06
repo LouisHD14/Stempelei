@@ -34,6 +34,7 @@ describe('Datenbank', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt
         'businesses',
         'cards',
         'devices',
+        'email_tokens',
         'events',
         'locations',
         'programs',

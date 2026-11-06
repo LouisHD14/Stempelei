@@ -25,15 +25,24 @@ Nicht Teil der ersten Version: Apple/Google Wallet, Wochenauswertung (Groß), Ka
 | Hosting | Server in Deutschland (z. B. Hetzner), Docker Compose, Caddy für HTTPS | Günstig, DSGVO-freundlich, einfach zu betreiben |
 | Bezahlung | **Stripe Billing** (entschieden) | Abos, Rechnungen, SEPA und Kundenportal fertig vorhanden |
 | Testphase | **14 Tage kostenlos** (entschieden) | `TRIAL_DAYS` in `src/domain/plans.ts` |
-| E-Mail | Anbieter mit Sitz in der EU (z. B. Brevo) | Bestätigung und Passwort-Reset |
+| E-Mail | **Brevo** über SMTP (entschieden) | EU-Firma mit AVV, kostenlos bis 300 Mails am Tag, reicht lange für Bestätigung und Passwort-Reset. SMTP hält den Wechsel zu einem anderen Anbieter einfach |
 
 Domain: vorhanden, wird über `PUBLIC_URL` eingetragen.
-Noch offen: Hosting-Anbieter, E-Mail-Anbieter.
+Noch offen: Hosting-Anbieter.
 
 Abweichungen bei der Umsetzung von Phase 0:
 
 - Tests laufen mit dem eingebauten Test-Runner von Node (`node:test`) statt vitest. Die sicheren vitest-Versionen ließen sich mit npm 10 nicht installieren, und `node:test` braucht keine zusätzliche Abhängigkeit.
 - Lint und Format mit Biome.
+
+Umsetzung von Phase 1:
+
+- Konten-Routen in `src/routes/auth.ts`, Seiten `/registrieren`, `/anmelden`, `/bestaetigen`, `/passwort-vergessen`, `/passwort-neu`, `/konto` mit `public/assets/js/konto.js`.
+- Links aus E-Mails tragen das Token hinter `#`, damit es nicht in Server- oder Proxy-Logs landet. Die Tabelle `email_tokens` speichert nur den Hash, jeder Link gilt einmal (Bestätigung 48 Stunden, Passwort 1 Stunde).
+- Login erst nach bestätigter E-Mail. Registrieren, Login und Passwort-Reset verraten nicht, ob es eine Adresse schon gibt.
+- Ein neues Passwort beendet alle Sitzungen des Kontos.
+- Ratenbegrenzung mit `@fastify/rate-limit` im Speicher des Prozesses. Reicht für eine Instanz, bei mehreren auf Redis umstellen.
+- Ohne `SMTP_URL` (nur Entwicklung) stehen die Mails mit ihren Links im Log.
 
 ## Rollen und Anmeldung
 
@@ -110,8 +119,10 @@ Alle Antworten sind JSON, alle Eingaben werden per Schema geprüft.
 Öffentlich
   POST /api/auth/register            Betrieb und Inhaber anlegen
   POST /api/auth/verify              E-Mail bestätigen
+  POST /api/auth/verify/resend       Bestätigungslink neu senden
   POST /api/auth/login | logout
-  POST /api/auth/password-reset      Link anfordern / neues Passwort setzen
+  POST /api/auth/password-reset/request | confirm   Link anfordern / neues Passwort setzen
+  GET  /api/auth/me                  Angemeldetes Konto mit Betrieb
   GET  /api/public/cards/:token      Karte für die Gast-Ansicht (ohne interne IDs)
   GET  /api/public/cards/:token/live Server-Sent Events
 
@@ -212,7 +223,7 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 | Phase | Inhalt | Fertig, wenn |
 | --- | --- | --- |
 | 0. Grundgerüst ✓ | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests) | `docker compose up` startet App und Datenbank, CI ist grün |
-| 1. Konten | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
+| 1. Konten ✓ | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
 | 2. Karte einrichten | Programme und Prämien, Seite `/konto` | Die Einstellungen landen in der Datenbank |
 | 3. Gast-Karten | Karte ausgeben, `/k/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
 | 4. Kasse | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |

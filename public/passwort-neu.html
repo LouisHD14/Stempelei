@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neues Passwort · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="passwort-neu">
+<header class="bar">
+  <div class="container">
+    <a class="brand" href="/" aria-label="Stempelei, zur Startseite">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      Stempelei
+    </a>
+  </div>
+</header>
+<main class="app">
+  <div class="container">
+    <section class="auth stock" aria-labelledby="h-auth">
+      <h1 id="h-auth">Neues Passwort</h1>
+      <form id="form" novalidate>
+        <div class="field"><label for="password">Neues Passwort</label><input id="password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="200" aria-describedby="pwHelp"><p class="help" id="pwHelp">Mindestens 10 Zeichen.</p></div>
+        <button class="btn btn--ink" type="submit">Passwort speichern</button>
+      </form>
+      <a class="btn btn--card" id="next" href="/anmelden" hidden>Zur Anmeldung</a>
+      <p class="flash" id="flash" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</main>
+<script src="/assets/js/konto.js"></script>
+</body>
+</html>
