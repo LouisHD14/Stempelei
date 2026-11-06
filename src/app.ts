@@ -100,7 +100,7 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
 
   await app.register(fastifyStatic, {
     root: PUBLIC_DIR,
-    // /anmelden liefert public/anmelden.html
+    // /login liefert public/login.html
     extensions: ['html'],
     setHeaders(res, path) {
       res.header('Cache-Control', path.endsWith('.html') ? 'no-cache' : 'public, max-age=86400');
@@ -127,9 +127,11 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
     if (err.validation) {
       // Die Meldungen der Schema-Prüfung sind englisch und technisch, deshalb eine eigene pro Feld
       const field = err.validation[0]?.instancePath.split('/')[1] ?? '';
-      return reply
-        .code(400)
-        .send({ error: 'bad_request', message: VALIDATION_MESSAGES[field] ?? 'Bitte prüfe deine Eingaben.' });
+      return reply.code(400).send({
+        error: 'bad_request',
+        field,
+        message: VALIDATION_MESSAGES[field] ?? 'Bitte prüfe deine Eingaben.',
+      });
     }
     return reply.code(status).send({
       error: status >= 500 ? 'internal_error' : 'bad_request',

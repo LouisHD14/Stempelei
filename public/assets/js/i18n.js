@@ -1,0 +1,259 @@
+// Sprachwahl Deutsch/Englisch. Der deutsche Text steht im HTML, hier liegt nur das Englische.
+// Elemente mit data-i18n bekommen ihren Text aus EN, data-i18n-attr="name:key" setzt Attribute.
+// Elemente mit data-lang-only="en" sind nur auf Englisch sichtbar.
+(() => {
+  'use strict';
+
+  const EN = {
+    "auth.anmelden": "Log in",
+    "auth.bestaetigungslink-neu-senden": "Send confirmation link again",
+    "auth.e-mail-adresse": "Email address",
+    "auth.e-mail-bestaetigen": "Confirm email",
+    "auth.einen-moment-wir-pruefen-deinen-link": "One moment, we are checking your link …",
+    "auth.gib-deine-e-mail-adresse-ein-wir-schicke": "Enter your email address. We will send you a link to set a new password.",
+    "auth.konto-anlegen": "Create account",
+    "auth.leg-deinen-betrieb-an-die-ersten-14-tage": "Set up your business. The first 14 days are free, then you choose a package.",
+    "auth.link-senden": "Send link",
+    "auth.mindestens-10-zeichen": "At least 10 characters.",
+    "auth.name-des-betriebs": "Business name",
+    "auth.neues-passwort": "New password",
+    "auth.noch-kein-konto": "No account yet?",
+    "auth.passwort": "Password",
+    "auth.passwort-speichern": "Save password",
+    "auth.passwort-vergessen": "Forgot your password?",
+    "auth.passwort-vergessen-2": "Forgot password",
+    "auth.schon-ein-konto": "Already have an account?",
+    "auth.zur-anmeldung": "Go to login",
+    "auth.zur-uebersicht": "Go to overview",
+    "auth.zurueck-zur-anmeldung": "Back to login",
+    "common.abmelden": "Log out",
+    "common.anmelden": "Log in",
+    "common.anmelden-stempelei": "Log in · Stempelei",
+    "common.aria-label-hauptmenue": "Main menu",
+    "common.aria-label-konto-menue": "Account menu",
+    "common.aria-label-stempelei-zur-startseite": "Stempelei, to the home page",
+    "common.aria-label-stempelei-zur-uebersicht": "Stempelei, to the overview",
+    "common.datenschutz": "Privacy policy",
+    "common.datenschutzerklaerung-stempelei": "Privacy policy · Stempelei",
+    "common.desc-digitale-stempelkarten-fuer-restaur": "Digital stamp cards for restaurants, cafés and shops. Design your card, stamp with a QR code at the till.",
+    "common.desc-pakete-ab-29-im-monat-14-tage-koste": "Packages from €29 a month, free 14-day trial.",
+    "common.digitale-stempelkarten-fuer-betriebe-ste": "Digital stamp cards for businesses · Stempelei",
+    "common.digitale-stempelkarten-fuer-restaurants": "Digital stamp cards for restaurants, cafés and shops.",
+    "common.e-mail-bestaetigen-stempelei": "Confirm email · Stempelei",
+    "common.impressum": "Imprint",
+    "common.impressum-stempelei": "Imprint · Stempelei",
+    "common.jedes-paket-14-tage-kostenlos-testen": "Try any package free for 14 days",
+    "common.konto-anlegen-stempelei": "Create account · Stempelei",
+    "common.kostenlos-testen": "Start free trial",
+    "common.neues-passwort-stempelei": "New password · Stempelei",
+    "common.passwort-vergessen-stempelei": "Forgot password · Stempelei",
+    "common.preise": "Pricing",
+    "common.preise-stempelei": "Pricing · Stempelei",
+    "common.start": "Home",
+    "common.uebersicht": "Overview",
+    "common.uebersicht-stempelei": "Overview · Stempelei",
+    "dash.bald-verfuegbar": "Coming soon",
+    "dash.betrieb": "Business",
+    "dash.dein-gast-scannt-den-qr-code-an-der-kass": "Your guest scans the QR code at the till and has their card.",
+    "dash.dein-konto": "Your account",
+    "dash.deine-e-mail-adresse-ist-bestaetigt": "Your email address is confirmed.",
+    "dash.deine-naechsten-schritte": "Your next steps",
+    "dash.e-mail": "Email",
+    "dash.erste-karte-ausgeben": "Hand out your first card",
+    "dash.handy-oder-tablet-freischalten-und-deine": "Approve a phone or tablet and give your team PINs.",
+    "dash.kasse-einrichten": "Set up your till",
+    "dash.konto-bestaetigen": "Confirm your account",
+    "dash.name-stempelregel-praemien-und-stempelfa": "Set the name, stamp rule, rewards and stamp colour.",
+    "dash.paket": "Package",
+    "dash.paket-waehlen": "Choose a package",
+    "dash.pakete-ansehen": "See packages",
+    "dash.spaetestens-am-ende-der-testphase-damit": "At the latest by the end of the trial, so the till keeps working.",
+    "dash.stempelkarte-gestalten": "Design your stamp card",
+    "dash.willkommen": "Welcome,",
+    "home.10-besuche": "10 visits",
+    "home.10-einkaeufe": "10 purchases",
+    "home.10-stempel": "10 stamps",
+    "home.12-kugeln": "12 scoops",
+    "home.14-tage-kostenlos-keine-zahlungsdaten-no": "Free for 14 days. No payment details needed.",
+    "home.5-stempel": "5 stamps",
+    "home.6-termine": "6 appointments",
+    "home.8-getraenke": "8 drinks",
+    "home.aria-label-beispiel-einer-stempelkarte-m": "Example stamp card with 4 of 10 stamps",
+    "home.baeckerei": "Bakery",
+    "home.bald-in-apple-wallet-und-google-wallet": "Soon in Apple Wallet and Google Wallet",
+    "home.becher-gratis": "Free sundae",
+    "home.bereit-fuer-deine-erste-karte": "Ready for your first card?",
+    "home.bis-espresso-aufs-haus": "until a free espresso.",
+    "home.branche": "Business",
+    "home.brotlaib-gratis": "Free loaf of bread",
+    "home.caf": "Café",
+    "home.dein-gast-scannt-einmal-einen-qr-code-an": "Your guest scans a QR code at the till once and has their card on their phone.",
+    "home.deine-gaeste-sammeln-stempel-auf-dem-han": "Your guests collect stamps on their phone, your team stamps with a QR code. Set up in minutes, no technical skills needed.",
+    "home.dessert-aufs-haus": "Free dessert",
+    "home.die-karte-oeffnet-sich-im-browser-und-la": "The card opens in the browser and can be added to the home screen. Guests give neither a name nor an email.",
+    "home.digitale-stempelkarten-fuer-deinen-betri": "Digital stamp cards for your business.",
+    "home.du-verwaltest-alles-hier-deine-gaeste-se": "You manage everything here. Your guests only see their own card.",
+    "home.du-waehlst-ein-paket-ab-29-im-monat-ohne": "You choose a package from €29 a month. Without one the till is locked, but your guests still see their cards.",
+    "home.ein-handy-oder-tablet-mit-kamera-reicht": "A phone or tablet with a camera is enough. Every team member gets their own PIN.",
+    "home.ein-handy-oder-tablet-mit-kamera-und-bro": "A phone or tablet with a camera and a browser. Nothing else.",
+    "home.ein-paar-beispiele-als-startpunkt": "A few examples to start from.",
+    "home.einen-stempel-gibt-es-fuer-jeden-besuch": "One stamp for every visit over €10.",
+    "home.eisdiele": "Ice cream parlour",
+    "home.espresso-aufs-haus": "Free espresso",
+    "home.fragen-vor-dem-start": "Questions before you start",
+    "home.friseur": "Hairdresser",
+    "home.fuer-jeden-betrieb-mit-stammkundschaft": "For every business with regulars",
+    "home.haarwaesche-gratis": "Free hair wash",
+    "home.in-vier-schritten-startklar": "Ready in four steps",
+    "home.jetzt-konto-anlegen": "Create your account now",
+    "home.kaffee-gratis": "Free coffee",
+    "home.karte": "Card",
+    "home.karten-ausgeben": "Hand out cards",
+    "home.kasse-einrichten": "Set up your till",
+    "home.keine-app-kein-konto": "No app, no account",
+    "home.koennen-gaeste-sich-selbst-stempeln": "Can guests stamp their own card?",
+    "home.konto-anlegen": "Create an account",
+    "home.kostenlos-testen": "Start free trial",
+    "home.leg-dein-konto-an-und-richte-deine-stemp": "Create your account and set up your stamp card. The first 14 days are free.",
+    "home.lege-fest-wofuer-es-stempel-gibt-welche": "Decide what earns a stamp, which rewards there are and the colour of the stamps.",
+    "home.name-deines-betriebs-e-mail-adresse-und": "Your business name, email address and password. The trial starts right away.",
+    "home.nein-stempel-vergibt-nur-dein-team-auf-f": "No. Only your team gives stamps, on approved devices with a personal PIN.",
+    "home.noch-1-stempel": "1 more stamp",
+    "home.preise-ansehen": "See pricing",
+    "home.restaurant": "Restaurant",
+    "home.so-sieht-eine-karte-bei-deinen-gaesten-a": "This is what a card looks like for your guests. You choose the name, rewards and colour.",
+    "home.sobald-dein-team-stempelt-erscheint-der": "As soon as your team stamps, the stamp appears on the guest’s phone.",
+    "home.spaeter-koennen-gaeste-ihre-karte-mit-ei": "Later, guests can add their card to their wallet with one tap.",
+    "home.stempel-in-echtzeit": "Stamps in real time",
+    "home.stempelkarte-gestalten": "Design your stamp card",
+    "home.stempelstand-und-eingeloeste-praemien-ke": "Stamp count and redeemed rewards. No names, no email addresses.",
+    "home.typische-praemie": "Typical reward",
+    "home.was-brauche-ich-an-der-kasse": "What do I need at the till?",
+    "home.was-deine-gaeste-bekommen": "What your guests get",
+    "home.was-passiert-nach-der-testphase": "What happens after the trial?",
+    "home.welche-daten-speichert-eine-karte": "What data does a card store?",
+    "legal.x": "This page is only available in German, as German law requires.",
+    "pricing.0-97-pro-tag": "€0.97 per day",
+    "pricing.1-97-pro-tag": "€1.97 per day",
+    "pricing.1-standort": "1 location",
+    "pricing.1-stempelkarte": "1 stamp card",
+    "pricing.10-team-zugaenge": "10 team members",
+    "pricing.29": "€29",
+    "pricing.3-30-pro-tag": "€3.30 per day",
+    "pricing.3-team-zugaenge": "3 team members",
+    "pricing.59": "€59",
+    "pricing.99": "€99",
+    "pricing.alle-preise-pro-monat-und-betrieb": "All prices per month and business,",
+    "pricing.aria-label-pakete": "Packages",
+    "pricing.auswertung-pro-standort-und-woche": "Weekly report per location",
+    "pricing.bis-zu-10-standorte": "Up to 10 locations",
+    "pricing.bis-zu-3-standorte": "Up to 3 locations",
+    "pricing.bis-zu-3-stempelkarten-etwa-mittag-und-a": "Up to 3 stamp cards, e.g. lunch and dinner",
+    "pricing.die-ersten-14-tage-sind-kostenlos-danach": "The first 14 days are free, then monthly by card or SEPA via Stripe. Minimum term and notice period:",
+    "pricing.die-laufzeit": "The term",
+    "pricing.eigene-praemien-und-stempelregel": "Your own rewards and stamp rule",
+    "pricing.ein-paket-fuer-jede-groesse": "A package for every size.",
+    "pricing.ein-standort": "A location",
+    "pricing.ein-team-zugang": "A team member",
+    "pricing.eine-filiale-mit-eigener-adresse-stempel": "A branch with its own address. Stamps count in all locations.",
+    "pricing.eine-kartenart-mit-eigener-regel-und-eig": "A card type with its own rule and rewards, e.g. a lunch card and a coffee card.",
+    "pricing.eine-person-die-stempeln-darf-jede-bekom": "A person who may give stamps. Each gets their own PIN, so the log shows who stamped.",
+    "pricing.eine-stempelkarte": "A stamp card",
+    "pricing.fuer-betriebe-mit-mehreren-filialen-oder": "For businesses with several branches or offers.",
+    "pricing.fuer-einen-laden-ein-caf-oder-ein-restau": "For one shop, café or restaurant.",
+    "pricing.fuer-ketten-und-grosse-haeuser": "For chains and large venues.",
+    "pricing.gaeste": "Guests",
+    "pricing.gesetzlicher-umsatzsteuer-pro-tag-gerech": "statutory VAT. Per day calculated with 30 days.",
+    "pricing.gross": "Large",
+    "pricing.im-monat": "per month",
+    "pricing.ja": "yes",
+    "pricing.jedes-paket-14-tage-kostenlos-testen-dan": "Try any package free for 14 days, then pay monthly. You only choose a package at the end of the trial.",
+    "pricing.kasse-mit-kamera-scanner": "Till with camera scanner",
+    "pricing.klein": "Small",
+    "pricing.kostenlos-testen": "Start free trial",
+    "pricing.leistung": "Feature",
+    "pricing.mittel": "Medium",
+    "pricing.nein": "no",
+    "pricing.standorte": "Locations",
+    "pricing.stempelkarten": "Stamp cards",
+    "pricing.team-zugaenge": "Team members",
+    "pricing.unbegrenzt": "unlimited",
+    "pricing.unbegrenzt-viele-gaeste": "Unlimited guests",
+    "pricing.unbegrenzt-viele-stempelkarten": "Unlimited stamp cards",
+    "pricing.unbegrenzt-viele-team-zugaenge": "Unlimited team members",
+    "pricing.unter-1-am-tag": "under €1 a day",
+    "pricing.was-die-pakete-zaehlen": "What the packages count",
+    "pricing.was-jedes-paket-enthaelt": "What each package includes"
+  };
+
+  const STORE = 'stempelei.lang';
+  const listeners = [];
+  const original = new Map();
+  const originalAttr = new Map();
+
+  function initial() {
+    try {
+      const saved = localStorage.getItem(STORE);
+      if (saved === 'de' || saved === 'en') return saved;
+    } catch {}
+    return /^de\b/i.test(navigator.language || 'de') ? 'de' : 'en';
+  }
+
+  let lang = initial();
+
+  function apply() {
+    document.documentElement.lang = lang;
+    for (const node of document.querySelectorAll('[data-i18n]')) {
+      if (!original.has(node)) original.set(node, node.innerHTML);
+      const en = EN[node.dataset.i18n];
+      node.innerHTML = lang === 'en' && en !== undefined ? en : original.get(node);
+    }
+    for (const node of document.querySelectorAll('[data-i18n-attr]')) {
+      if (!originalAttr.has(node)) originalAttr.set(node, new Map());
+      const saved = originalAttr.get(node);
+      for (const pair of node.dataset.i18nAttr.split(',')) {
+        const [name, key] = pair.split(':');
+        if (!saved.has(name)) saved.set(name, node.getAttribute(name) ?? '');
+        const en = EN[key];
+        node.setAttribute(name, lang === 'en' && en !== undefined ? en : saved.get(name));
+      }
+    }
+    for (const node of document.querySelectorAll('[data-lang-only]')) node.hidden = node.dataset.langOnly !== lang;
+    for (const btn of document.querySelectorAll('[data-lang-switch]')) {
+      const other = lang === 'de' ? 'en' : 'de';
+      btn.textContent = other.toUpperCase();
+      btn.lang = other;
+      btn.setAttribute('aria-label', other === 'en' ? 'Switch to English' : 'Auf Deutsch umschalten');
+    }
+    for (const fn of listeners) fn(lang);
+  }
+
+  function set(next) {
+    lang = next;
+    try {
+      localStorage.setItem(STORE, next);
+    } catch {}
+    apply();
+  }
+
+  // Menüpunkt der aktuellen Seite markieren
+  for (const a of document.querySelectorAll('[data-nav]')) {
+    if (a.dataset.nav === location.pathname) a.setAttribute('aria-current', 'page');
+  }
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-lang-switch]')) set(lang === 'de' ? 'en' : 'de');
+  });
+
+  window.I18N = {
+    get lang() {
+      return lang;
+    },
+    /** Text in der aktuellen Sprache: t({ de: '…', en: '…' }) */
+    t: (texts) => texts[lang] ?? texts.de,
+    onChange(fn) {
+      listeners.push(fn);
+    },
+  };
+
+  apply();
+})();

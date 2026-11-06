@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="common.uebersicht-stempelei">Übersicht · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="dashboard">
+<header class="bar">
+  <div class="container">
+    <a class="brand" href="/dashboard" aria-label="Stempelei, zur Übersicht" data-i18n-attr="aria-label:common.aria-label-stempelei-zur-uebersicht">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      Stempelei
+    </a>
+    <nav class="nav" aria-label="Konto-Menü" data-i18n-attr="aria-label:common.aria-label-konto-menue">
+      <a href="/dashboard" data-nav="/dashboard" data-i18n="common.uebersicht">Übersicht</a>
+    </nav>
+    <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
+    <button class="btn btn--card btn--s" id="logout" type="button" data-i18n="common.abmelden">Abmelden</button>
+  </div>
+</header>
+
+<main class="app dash">
+  <div class="container">
+    <section class="dash-head" aria-labelledby="h-dash">
+      <h1 id="h-dash"><span data-i18n="dash.willkommen">Willkommen,</span> <span id="bizName"></span></h1>
+      <p class="lead" id="trial"></p>
+    </section>
+
+    <section class="checklist stock" aria-labelledby="h-check">
+      <header class="checklist-head">
+        <h2 id="h-check" data-i18n="dash.deine-naechsten-schritte">Deine nächsten Schritte</h2>
+        <p class="muted" id="progress"></p>
+      </header>
+      <ol class="checks">
+        <li class="check" id="step-account">
+          <span class="check-mark" aria-hidden="true">1</span>
+          <div class="check-body">
+            <h3 data-i18n="dash.konto-bestaetigen">Konto bestätigen</h3>
+            <p data-i18n="dash.deine-e-mail-adresse-ist-bestaetigt">Deine E-Mail-Adresse ist bestätigt.</p>
+          </div>
+          <div class="check-action"><span class="check-state" data-state></span></div>
+        </li>
+        <li class="check" id="step-card">
+          <span class="check-mark" aria-hidden="true">2</span>
+          <div class="check-body">
+            <h3 data-i18n="dash.stempelkarte-gestalten">Stempelkarte gestalten</h3>
+            <p data-i18n="dash.name-stempelregel-praemien-und-stempelfa">Name, Stempelregel, Prämien und Stempelfarbe festlegen.</p>
+          </div>
+          <div class="check-action"><span class="soon" data-i18n="dash.bald-verfuegbar">Bald verfügbar</span><span class="check-state" data-state></span></div>
+        </li>
+        <li class="check" id="step-till">
+          <span class="check-mark" aria-hidden="true">3</span>
+          <div class="check-body">
+            <h3 data-i18n="dash.kasse-einrichten">Kasse einrichten</h3>
+            <p data-i18n="dash.handy-oder-tablet-freischalten-und-deine">Handy oder Tablet freischalten und deinem Team PINs geben.</p>
+          </div>
+          <div class="check-action"><span class="soon" data-i18n="dash.bald-verfuegbar">Bald verfügbar</span><span class="check-state" data-state></span></div>
+        </li>
+        <li class="check" id="step-first">
+          <span class="check-mark" aria-hidden="true">4</span>
+          <div class="check-body">
+            <h3 data-i18n="dash.erste-karte-ausgeben">Erste Karte ausgeben</h3>
+            <p data-i18n="dash.dein-gast-scannt-den-qr-code-an-der-kass">Dein Gast scannt den QR-Code an der Kasse und hat seine Karte.</p>
+          </div>
+          <div class="check-action"><span class="soon" data-i18n="dash.bald-verfuegbar">Bald verfügbar</span><span class="check-state" data-state></span></div>
+        </li>
+        <li class="check" id="step-plan">
+          <span class="check-mark" aria-hidden="true">5</span>
+          <div class="check-body">
+            <h3 data-i18n="dash.paket-waehlen">Paket wählen</h3>
+            <p data-i18n="dash.spaetestens-am-ende-der-testphase-damit">Spätestens am Ende der Testphase, damit die Kasse weiterläuft.</p>
+          </div>
+          <div class="check-action"><a class="btn btn--card btn--s" href="/pricing" data-i18n="dash.pakete-ansehen">Pakete ansehen</a><span class="check-state" data-state></span></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="dash-account" aria-labelledby="h-account">
+      <h2 id="h-account" data-i18n="dash.dein-konto">Dein Konto</h2>
+      <dl class="facts">
+        <div><dt data-i18n="dash.betrieb">Betrieb</dt><dd id="factBiz"></dd></div>
+        <div><dt data-i18n="dash.e-mail">E-Mail</dt><dd id="factEmail"></dd></div>
+        <div><dt data-i18n="dash.paket">Paket</dt><dd id="factPlan"></dd></div>
+      </dl>
+    </section>
+    <p class="flash" id="flash" role="status" aria-live="polite"></p>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span class="brandline">Stempelei.</span> <span data-i18n="common.digitale-stempelkarten-fuer-restaurants">Digitale Stempelkarten für Restaurants, Cafés und Läden.</span> <a href="/imprint" data-i18n="common.impressum">Impressum</a> · <a href="/privacy" data-i18n="common.datenschutz">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/i18n.js"></script>
+<script src="/assets/js/account.js"></script>
+</body>
+</html>

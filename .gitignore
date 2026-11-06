@@ -1,7 +1,6 @@
 node_modules/
 build/
 .env
-dist/stempelei-fragment.html
 # Hallmark: nur das Log bleibt im Repo
 .hallmark/*
 !.hallmark/log.json

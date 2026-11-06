@@ -25,6 +25,7 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'unpaid',
   'incomplete',
 ]);
+export const localeEnum = pgEnum('locale', ['de', 'en']);
 export const eventTypeEnum = pgEnum('event_type', ['issue', 'give', 'redeem', 'undo']);
 
 /** Ein Betrieb mit Abo. Alle anderen Betriebsdaten hängen daran und werden mit ihm gelöscht. */
@@ -52,6 +53,8 @@ export const users = pgTable(
     email: text('email').notNull(),
     passwordHash: text('password_hash').notNull(),
     emailVerifiedAt: tz('email_verified_at'),
+    /** Sprache für E-Mails, gewählt bei der Registrierung */
+    locale: localeEnum('locale').notNull().default('de'),
     createdAt: createdAt(),
   },
   (t) => [

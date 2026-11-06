@@ -3,9 +3,10 @@ import type { FastifyInstance, FastifyReply, FastifyRequest, preHandlerHookHandl
 import { dummyPasswordHash, hashPassword, hashToken, randomToken, verifyPassword } from '../auth/crypto.js';
 import type { Config } from '../config.js';
 import type { Db } from '../db/client.js';
-import { businesses, emailTokens, sessions, users } from '../db/schema.js';
+import { businesses, cards, devices, emailTokens, programs, sessions, users } from '../db/schema.js';
 import { trialEndsAt } from '../domain/plans.js';
 import type { Mailer } from '../mail.js';
+import { LOCALES, type Locale, mailTexts } from '../mail-texts.js';
 
 export const SESSION_COOKIE = 'sid';
 const SESSION_DAYS = 30;
@@ -40,12 +41,14 @@ declare module 'fastify' {
 const email = { type: 'string', format: 'email', minLength: 3, maxLength: 254 } as const;
 const password = { type: 'string', minLength: PASSWORD_MIN, maxLength: PASSWORD_MAX } as const;
 const token = { type: 'string', pattern: '^[A-Za-z0-9_-]{43}$' } as const;
-const body = (properties: Record<string, object>) => ({
+/** Sprache der Seite, aus der die Anfrage kommt. Bestimmt die Sprache der E-Mail. */
+const locale = { type: 'string', enum: [...LOCALES] } as const;
+const body = (properties: Record<string, object>, optional: Record<string, object> = {}) => ({
   body: {
     type: 'object',
     additionalProperties: false,
     required: Object.keys(properties),
-    properties,
+    properties: { ...properties, ...optional },
   },
 });
 
@@ -142,21 +145,9 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
     });
   }
 
-  async function sendVerifyMail(userId: string, to: string): Promise<void> {
+  async function sendVerifyMail(userId: string, to: string, lang: Locale): Promise<void> {
     const t = await createToken(userId, 'verify');
-    await mailer.send({
-      to,
-      subject: 'Bitte bestätige deine E-Mail-Adresse',
-      text: [
-        'Hallo,',
-        '',
-        'danke für deine Anmeldung bei Stempelei. Bitte bestätige deine E-Mail-Adresse mit diesem Link:',
-        '',
-        link('/bestaetigen', t),
-        '',
-        `Der Link gilt ${VERIFY_HOURS} Stunden. Wenn du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.`,
-      ].join('\n'),
-    });
+    await mailer.send({ to, ...mailTexts.verify(lang, link('/verify', t), VERIFY_HOURS) });
   }
 
   /** Liest die Sitzung aus dem Cookie. Abgelaufene Sitzungen zählen nicht. */
@@ -185,14 +176,18 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
   };
   app.decorate('requireUser', requireUser);
 
-  app.post<{ Body: { businessName: string; email: string; password: string } }>(
+  app.post<{ Body: { businessName: string; email: string; password: string; locale?: Locale } }>(
     '/api/auth/register',
     {
       preHandler: mailLimit,
-      schema: body({ businessName: { type: 'string', minLength: 2, maxLength: 80 }, email, password }),
+      schema: body(
+        { businessName: { type: 'string', minLength: 2, maxLength: 80 }, email, password },
+        { locale },
+      ),
     },
     async (req, reply) => {
       const addr = normalizeEmail(req.body.email);
+      const lang = req.body.locale ?? 'de';
       const name = req.body.businessName.trim();
       if (name.length < 2) {
         return reply
@@ -214,7 +209,7 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
           if (!biz) throw new Error('Betrieb wurde nicht angelegt');
           const [u] = await tx
             .insert(users)
-            .values({ businessId: biz.id, email: addr, passwordHash })
+            .values({ businessId: biz.id, email: addr, passwordHash, locale: lang })
             .returning({ id: users.id });
           return u?.id ?? null;
         })
@@ -225,23 +220,11 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
         });
 
       if (userId) {
-        await sendVerifyMail(userId, addr);
+        await sendVerifyMail(userId, addr, lang);
       } else {
         // Gleiche Antwort wie bei einem neuen Konto, damit niemand fremde Adressen abfragen kann
-        await mailer.send({
-          to: addr,
-          subject: 'Du hast schon ein Konto bei Stempelei',
-          text: [
-            'Hallo,',
-            '',
-            'jemand wollte mit dieser E-Mail-Adresse ein neues Konto anlegen. Es gibt schon eins.',
-            'Hast du dein Passwort vergessen? Hier kannst du ein neues setzen:',
-            '',
-            new URL('/passwort-vergessen', config.publicUrl).href,
-            '',
-            'Warst du das nicht, musst du nichts tun.',
-          ].join('\n'),
-        });
+        const forgot = new URL('/forgot-password', config.publicUrl).href;
+        await mailer.send({ to: addr, ...mailTexts.alreadyRegistered(lang, forgot) });
       }
       return reply.code(201).send({ ok: true });
     },
@@ -268,16 +251,16 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
     },
   );
 
-  app.post<{ Body: { email: string } }>(
+  app.post<{ Body: { email: string; locale?: Locale } }>(
     '/api/auth/verify/resend',
-    { preHandler: mailLimit, schema: body({ email }) },
+    { preHandler: mailLimit, schema: body({ email }, { locale }) },
     async (req) => {
       const addr = normalizeEmail(req.body.email);
       const [u] = await db
-        .select({ id: users.id, verified: users.emailVerifiedAt })
+        .select({ id: users.id, verified: users.emailVerifiedAt, locale: users.locale })
         .from(users)
         .where(sql`lower(${users.email}) = ${addr}`);
-      if (u && !u.verified) await sendVerifyMail(u.id, addr);
+      if (u && !u.verified) await sendVerifyMail(u.id, addr, req.body.locale ?? u.locale);
       return { ok: true };
     },
   );
@@ -320,27 +303,19 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
     return { ok: true };
   });
 
-  app.post<{ Body: { email: string } }>(
+  app.post<{ Body: { email: string; locale?: Locale } }>(
     '/api/auth/password-reset/request',
-    { preHandler: mailLimit, schema: body({ email }) },
+    { preHandler: mailLimit, schema: body({ email }, { locale }) },
     async (req) => {
       const addr = normalizeEmail(req.body.email);
-      const [u] = await db.select({ id: users.id }).from(users).where(sql`lower(${users.email}) = ${addr}`);
+      const [u] = await db
+        .select({ id: users.id, locale: users.locale })
+        .from(users)
+        .where(sql`lower(${users.email}) = ${addr}`);
       if (u) {
         const t = await createToken(u.id, 'reset');
-        await mailer.send({
-          to: addr,
-          subject: 'Neues Passwort für Stempelei',
-          text: [
-            'Hallo,',
-            '',
-            'mit diesem Link setzt du ein neues Passwort:',
-            '',
-            link('/passwort-neu', t),
-            '',
-            `Der Link gilt ${RESET_HOURS} Stunde. Hast du kein neues Passwort angefordert, musst du nichts tun.`,
-          ].join('\n'),
-        });
+        const lang = req.body.locale ?? u.locale;
+        await mailer.send({ to: addr, ...mailTexts.reset(lang, link('/reset-password', t), RESET_HOURS) });
       }
       return { ok: true };
     },
@@ -382,7 +357,30 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
       })
       .from(businesses)
       .where(eq(businesses.id, u.businessId));
-    return { user: { email: u.email }, business: biz };
+    // Fortschritt für die Checkliste im Dashboard
+    const any = async (rows: Promise<unknown[]>) => (await rows).length > 0;
+    const [cardDesigned, tillSetUp, firstCardIssued] = await Promise.all([
+      any(
+        db
+          .select({ id: programs.id })
+          .from(programs)
+          .where(and(eq(programs.businessId, u.businessId), isNull(programs.archivedAt)))
+          .limit(1),
+      ),
+      any(
+        db
+          .select({ id: devices.id })
+          .from(devices)
+          .where(and(eq(devices.businessId, u.businessId), isNull(devices.revokedAt)))
+          .limit(1),
+      ),
+      any(db.select({ id: cards.id }).from(cards).where(eq(cards.businessId, u.businessId)).limit(1)),
+    ]);
+    return {
+      user: { email: u.email },
+      business: biz,
+      steps: { cardDesigned, tillSetUp, firstCardIssued, planChosen: biz?.subscriptionStatus === 'active' },
+    };
   });
 }
 

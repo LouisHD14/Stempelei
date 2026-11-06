@@ -7,7 +7,7 @@ import { hashToken } from '../src/auth/crypto.js';
 import { loadConfig } from '../src/config.js';
 import { createDb } from '../src/db/client.js';
 import { runMigrations } from '../src/db/migrate.js';
-import { businesses, emailTokens, sessions, users } from '../src/db/schema.js';
+import { businesses, emailTokens, programs, sessions, users } from '../src/db/schema.js';
 import type { Mail } from '../src/mail.js';
 import { businessSlug } from '../src/routes/auth.js';
 
@@ -63,7 +63,7 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
       (await post('/api/auth/register', { businessName: 'Café Test', email, password })).statusCode,
       201,
     );
-    const res = await post('/api/auth/verify', { token: tokenFrom(mails.at(-1), '/bestaetigen') });
+    const res = await post('/api/auth/verify', { token: tokenFrom(mails.at(-1), '/verify') });
     assert.equal(res.statusCode, 200);
     return sessionCookie(res);
   }
@@ -114,7 +114,7 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
     assert.equal(early.statusCode, 403);
     assert.equal(early.json().error, 'email_not_verified');
 
-    const token = tokenFrom(mails[0], '/bestaetigen');
+    const token = tokenFrom(mails[0], '/verify');
     const verify = await post('/api/auth/verify', { token });
     assert.equal(verify.statusCode, 200);
     const sid = verify.cookies.find((c) => c.name === 'sid');
@@ -201,10 +201,7 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
       200,
     );
     assert.equal(mails.length, 1);
-    assert.equal(
-      (await post('/api/auth/verify', { token: tokenFrom(mails[0], '/bestaetigen') })).statusCode,
-      200,
-    );
+    assert.equal((await post('/api/auth/verify', { token: tokenFrom(mails[0], '/verify') })).statusCode, 200);
   });
 
   it('Passwort zurücksetzen beendet alte Sitzungen', async () => {
@@ -219,7 +216,7 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
       (await post('/api/auth/password-reset/request', { email: 'Reset@example.org' })).statusCode,
       200,
     );
-    const token = tokenFrom(mails[0], '/passwort-neu');
+    const token = tokenFrom(mails[0], '/reset-password');
 
     const short = await post('/api/auth/password-reset/confirm', { token, password: 'kurz' });
     assert.equal(short.statusCode, 400);
@@ -249,7 +246,7 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
       email: 'abgelaufen@example.org',
       password: 'richtig-langes-passwort',
     });
-    const token = tokenFrom(mails[0], '/bestaetigen');
+    const token = tokenFrom(mails[0], '/verify');
     await conn.db
       .update(emailTokens)
       .set({ expiresAt: new Date(Date.now() - 1000) })
@@ -281,6 +278,8 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
       password: 'kurz',
     });
     assert.equal(short.json().message, 'Das Passwort braucht mindestens 10 Zeichen.');
+    // Das Feld steht dabei, damit die Seite die Meldung in ihrer Sprache zeigen kann
+    assert.equal(short.json().field, 'password');
     assert.equal(mails.length, 0);
     // Unbekannte Felder entfernt Fastify, statt sie abzulehnen. Sie dürfen nichts bewirken.
     const extra = await post('/api/auth/login', { email: 'a@b.de', password: 'egal', admin: true });
@@ -315,18 +314,71 @@ describe('Konten', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt' }
     assert.match(blocked.json().message, /Zu viele Versuche/);
   });
 
-  it('liefert die Konto-Seiten ohne .html aus', async () => {
+  it('Checkliste zeigt, was erledigt ist', async () => {
+    const cookie = await verifiedAccount('checkliste@example.org');
+    const before = (await me(cookie)).json().steps;
+    assert.deepEqual(before, {
+      cardDesigned: false,
+      tillSetUp: false,
+      firstCardIssued: false,
+      planChosen: false,
+    });
+    const [owner] = await conn.db
+      .select({ businessId: users.businessId })
+      .from(users)
+      .where(eq(users.email, 'checkliste@example.org'));
+    assert.ok(owner);
+    await conn.db.insert(programs).values({ businessId: owner.businessId, name: 'Stammkarte' });
+    assert.equal((await me(cookie)).json().steps.cardDesigned, true);
+  });
+
+  it('schreibt E-Mails in der Sprache der Seite', async () => {
+    await post('/api/auth/register', {
+      businessName: 'English Café',
+      email: 'english@example.org',
+      password: 'richtig-langes-passwort',
+      locale: 'en',
+    });
+    assert.equal(mails[0]?.subject, 'Please confirm your email address');
+    const [u] = await conn.db.select().from(users).where(eq(users.email, 'english@example.org'));
+    assert.equal(u?.locale, 'en');
+    // Ohne Angabe gilt die gespeicherte Sprache
+    mails = [];
+    await post('/api/auth/password-reset/request', { email: 'english@example.org' });
+    assert.equal(mails[0]?.subject, 'New password for Stempelei');
+    // Andere Sprache auf der Seite gewählt: Diese gilt
+    mails = [];
+    await post('/api/auth/password-reset/request', { email: 'english@example.org', locale: 'de' });
+    assert.equal(mails[0]?.subject, 'Neues Passwort für Stempelei');
+    assert.equal(
+      (
+        await post('/api/auth/register', {
+          businessName: 'X Y',
+          email: 'x@y.de',
+          password: 'richtig-langes-passwort',
+          locale: 'fr',
+        })
+      ).statusCode,
+      400,
+    );
+  });
+
+  it('liefert alle Seiten ohne .html aus', async () => {
     for (const path of [
-      '/registrieren',
-      '/anmelden',
-      '/bestaetigen',
-      '/passwort-vergessen',
-      '/passwort-neu',
-      '/konto',
+      '/',
+      '/pricing',
+      '/register',
+      '/login',
+      '/verify',
+      '/forgot-password',
+      '/reset-password',
+      '/dashboard',
+      '/imprint',
+      '/privacy',
     ]) {
       const res = await app.inject(path);
       assert.equal(res.statusCode, 200, path);
-      assert.match(res.body, new RegExp(`data-page="${path.slice(1)}"`), path);
+      assert.match(res.body, new RegExp(`data-page="${path.slice(1) || 'index'}"`), path);
     }
   });
 });

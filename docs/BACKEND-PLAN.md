@@ -17,7 +17,7 @@ Nicht Teil der ersten Version: Apple/Google Wallet, Wochenauswertung (Groß), Ka
 
 | Thema | Vorschlag | Warum |
 | --- | --- | --- |
-| Sprache | TypeScript auf Node.js 22 | Eine Sprache für Server und Browser, die Stempel-Logik aus `app.js` wird geteilt |
+| Sprache | TypeScript auf Node.js 22 | Eine Sprache für Server und Browser |
 | Server | Fastify | Schnell, eingebaute Schema-Validierung, wenig Magie |
 | Datenbank | PostgreSQL 17 | Transaktionen und Zeilensperren für sicheres Stempeln |
 | Datenbankzugriff | Drizzle ORM mit SQL-Migrationen | Typsicher, SQL bleibt lesbar |
@@ -37,7 +37,7 @@ Abweichungen bei der Umsetzung von Phase 0:
 
 Umsetzung von Phase 1:
 
-- Konten-Routen in `src/routes/auth.ts`, Seiten `/registrieren`, `/anmelden`, `/bestaetigen`, `/passwort-vergessen`, `/passwort-neu`, `/konto` mit `public/assets/js/konto.js`.
+- Konten-Routen in `src/routes/auth.ts`, Seiten `/register`, `/login`, `/verify`, `/forgot-password`, `/reset-password`, `/dashboard` mit `public/assets/js/account.js`.
 - Links aus E-Mails tragen das Token hinter `#`, damit es nicht in Server- oder Proxy-Logs landet. Die Tabelle `email_tokens` speichert nur den Hash, jeder Link gilt einmal (Bestätigung 48 Stunden, Passwort 1 Stunde).
 - Login erst nach bestätigter E-Mail. Registrieren, Login und Passwort-Reset verraten nicht, ob es eine Adresse schon gibt.
 - Ein neues Passwort beendet alle Sitzungen des Kontos.
@@ -86,7 +86,7 @@ Regeln:
 
 ### Neue Karte für einen Gast
 
-1. Kasse: „Neue Karte ausgeben“ legt eine Karte an und zeigt einen QR-Code mit `https://<domain>/k/<public_token>`.
+1. Kasse: „Neue Karte ausgeben“ legt eine Karte an und zeigt einen QR-Code mit `https://<domain>/c/<public_token>`.
 2. Der Gast scannt ihn mit seiner Handykamera, die Karte öffnet sich im Browser.
 3. Die Seite bietet „Zum Startbildschirm hinzufügen“ an.
 
@@ -95,8 +95,8 @@ Später als Ergänzung: Ein QR-Aufsteller am Tresen erstellt per Scan selbst ein
 ### Stempeln
 
 1. Die Kasse scannt den QR-Code und liest das Token aus der URL. Alternativ tippt das Team den `short_code` ein.
-2. `GET /api/kasse/cards/:token` prüft, ob die Karte zu diesem Betrieb gehört. Gehört sie zu einem anderen: „Diese Karte gehört zu einem anderen Betrieb.“
-3. `POST /api/kasse/cards/:id/stamps` mit `{ amount, idempotencyKey }`
+2. `GET /api/till/cards/:token` prüft, ob die Karte zu diesem Betrieb gehört. Gehört sie zu einem anderen: „Diese Karte gehört zu einem anderen Betrieb.“
+3. `POST /api/till/cards/:id/stamps` mit `{ amount, idempotencyKey }`
    - Transaktion mit `SELECT … FOR UPDATE` auf die Karte, damit zwei Kassen nicht gleichzeitig schreiben
    - Der `idempotencyKey` (UUID aus dem Browser) verhindert doppelte Stempel bei Doppeltipp oder Netzfehler
    - Höchstens bis zur Kartenlänge. Mehr als 3 Stempel in 10 Minuten auf derselben Karte zeigen eine Warnung, die das Team bestätigen muss.
@@ -137,13 +137,13 @@ Inhaber (Session-Cookie)
   GET        /api/stats               Tageszahlen, später Wochenauswertung
 
 Kasse (Geräte-Cookie + PIN-Session für 15 Minuten)
-  POST /api/kasse/pin
-  GET  /api/kasse/cards/:tokenOrCode
-  POST /api/kasse/cards                     neue Karte
-  POST /api/kasse/cards/:id/stamps
-  POST /api/kasse/cards/:id/redeem          { rewardId }
-  POST /api/kasse/cards/:id/undo
-  GET  /api/kasse/log?date=heute
+  POST /api/till/pin
+  GET  /api/till/cards/:tokenOrCode
+  POST /api/till/cards                     neue Karte
+  POST /api/till/cards/:id/stamps
+  POST /api/till/cards/:id/redeem          { rewardId }
+  POST /api/till/cards/:id/undo
+  GET  /api/till/log?date=heute
 
 Stripe
   POST /api/webhooks/stripe          Signatur wird geprüft
@@ -153,12 +153,18 @@ Stripe
 
 | Pfad | Inhalt | Herkunft |
 | --- | --- | --- |
-| `/`, `/preise`, `/impressum`, `/datenschutz` | Statische Seiten | aus der Demo übernommen |
-| `/demo` | Die jetzige Demo mit `localStorage` | unverändert |
-| `/registrieren`, `/anmelden` | Konto anlegen, anmelden | neu |
-| `/konto` | Karte einrichten, Team, Standorte, Geräte, Abo | „Karte einrichten“ aus der Demo plus neue Bereiche |
-| `/kasse` | PIN, Scannen, Stempeln, Verlauf | Kasse aus der Demo |
-| `/k/:token` | Gast-Ansicht | Gast-Ansicht aus der Demo |
+Die Website richtet sich nur an Betriebe. Adressen sind englisch, die Texte gibt es auf Deutsch und Englisch mit Umschalter (Entscheidung vom 7. November 2026). Die Browser-Demo ist entfernt.
+
+| Pfad | Inhalt | Stand |
+| --- | --- | --- |
+| `/`, `/pricing`, `/imprint`, `/privacy` | Startseite für Betriebe, Preise, Rechtstexte (nur Deutsch) | fertig |
+| `/register`, `/login`, `/verify`, `/forgot-password`, `/reset-password` | Konto anlegen und anmelden | fertig |
+| `/dashboard` | Checkliste: Konto bestätigen, Karte gestalten, Kasse einrichten, erste Karte ausgeben, Paket wählen | fertig, Schritte 2–4 folgen |
+| `/dashboard/card` | Karte gestalten: Name, Regel, Prämien, Farbe | Phase 2 |
+| `/dashboard/team`, `/dashboard/devices` | Team-PINs, Kassengeräte | Phase 4 |
+| `/dashboard/billing` | Paket und Abo | Phase 5 |
+| `/till` | Kasse: PIN, Scannen, Stempeln, Verlauf | Phase 4 |
+| `/c/:token` | Gast-Karte, später mit „Zu Apple/Google Wallet hinzufügen“ | Phase 3 |
 
 ## Pakete durchsetzen
 
@@ -224,8 +230,8 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 | --- | --- | --- |
 | 0. Grundgerüst ✓ | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests) | `docker compose up` startet App und Datenbank, CI ist grün |
 | 1. Konten ✓ | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
-| 2. Karte einrichten | Programme und Prämien, Seite `/konto` | Die Einstellungen landen in der Datenbank |
-| 3. Gast-Karten | Karte ausgeben, `/k/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
+| 2. Karte einrichten | Programme und Prämien, Seite `/dashboard/card` | Die Einstellungen landen in der Datenbank |
+| 3. Gast-Karten | Karte ausgeben, `/c/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
 | 4. Kasse | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |
 | 5. Bezahlung | Stripe Checkout, Webhooks, Kundenportal, Paketgrenzen | Testzahlung schaltet das Paket frei, Kündigung sperrt die Kasse |
 | 6. Start vorbereiten | Backups, Monitoring, Löschjobs, Rechtstexte, AVV, Lasttest | Wiederherstellung aus Backup klappt, Rechtstexte geprüft |
