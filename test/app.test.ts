@@ -37,7 +37,7 @@ describe('App ohne Datenbank', () => {
     const res = await app.inject('/');
     assert.equal(res.statusCode, 200);
     assert.match(res.headers['content-type'] ?? '', /text\/html/);
-    assert.match(res.body, /<title>Stempelei<\/title>/);
+    assert.match(res.body, /<title[^>]*>[^<]*Stempelei<\/title>/);
     assert.equal(res.headers['cache-control'], 'no-cache');
     const csp = String(res.headers['content-security-policy']);
     assert.match(csp, /default-src 'self'/);
@@ -47,7 +47,7 @@ describe('App ohne Datenbank', () => {
   });
 
   it('liefert Assets mit Cache aus', async () => {
-    const res = await app.inject('/assets/js/app.js');
+    const res = await app.inject('/assets/js/i18n.js');
     assert.equal(res.statusCode, 200);
     assert.equal(res.headers['cache-control'], 'public, max-age=86400');
   });

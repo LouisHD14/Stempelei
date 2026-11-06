@@ -57,9 +57,19 @@ describe('loadConfig', () => {
       () => loadConfig({ ...base, NODE_ENV: 'production', PUBLIC_URL: 'http://stempelei.de' }),
       /https/,
     );
-    assert.equal(
-      loadConfig({ ...base, NODE_ENV: 'production', PUBLIC_URL: 'https://stempelei.de' }).publicUrl.host,
-      'stempelei.de',
-    );
+    const prod = {
+      ...base,
+      NODE_ENV: 'production',
+      PUBLIC_URL: 'https://stempelei.de',
+      SMTP_URL: 'smtp://login:key@smtp-relay.brevo.com:587',
+      MAIL_FROM: 'Stempelei <hallo@stempelei.de>',
+    };
+    assert.equal(loadConfig(prod).publicUrl.host, 'stempelei.de');
+  });
+  it('verlangt im Betrieb einen Mail-Zugang', () => {
+    const prod = { ...base, NODE_ENV: 'production', PUBLIC_URL: 'https://stempelei.de' };
+    assert.throws(() => loadConfig(prod), /SMTP_URL fehlt[\s\S]*MAIL_FROM fehlt/);
+    assert.throws(() => loadConfig({ ...base, SMTP_URL: 'http://falsch' }), /smtp:\/\//);
+    assert.equal(loadConfig(base).smtpUrl, null);
   });
 });

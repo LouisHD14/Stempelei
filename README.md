@@ -2,7 +2,9 @@
 
 Digitale Stempelkarten für Restaurants, Cafés und Läden. Gäste sammeln Stempel auf dem Handy, Betriebe stempeln an der Kasse per QR-Scan.
 
-Stand: Phase 0 des Backends ist fertig, also Server, Datenbank, Tests und CI. Die Website in `public/` ist noch die Demo mit Speicherung im Browser. Den Plan findest du in [`docs/BACKEND-PLAN.md`](docs/BACKEND-PLAN.md).
+Die Website richtet sich an Betriebe: Sie legen ein Konto an und verwalten dort ihre Stempelkarten. Gäste sehen später nur ihre eigene Karte. Alle Seiten gibt es auf Deutsch und Englisch.
+
+Stand: Phase 1 des Backends ist fertig. Betriebe können sich registrieren, ihre E-Mail bestätigen, sich anmelden und ihr Passwort zurücksetzen. Nach der Anmeldung zeigt `/dashboard` die nächsten Schritte. Den Plan findest du in [`docs/BACKEND-PLAN.md`](docs/BACKEND-PLAN.md).
 
 ## Schnellstart mit Docker
 
@@ -11,6 +13,8 @@ docker compose up --build
 ```
 
 Danach ist die Website unter http://localhost:3000 erreichbar. Beim Start laufen die Datenbank-Migrationen automatisch.
+
+Ohne Mail-Zugang lege eine `.env` mit `NODE_ENV=development` und `PUBLIC_URL=http://localhost:3000` an. Dann stehen die E-Mails mit ihren Links im Log (`docker compose logs app`).
 
 ## Entwicklung ohne Docker
 
@@ -34,7 +38,6 @@ Der Server liest `.env` nicht selbst. Lade die Datei mit `node --env-file=.env` 
 | `npm run typecheck` | TypeScript-Prüfung |
 | `npm run db:generate` | Erzeugt nach einer Änderung an `src/db/schema.ts` eine neue Migration in `drizzle/` |
 | `npm run db:migrate` | Führt offene Migrationen aus |
-| `npm run build:single` | Baut die Demo als einzelne HTML-Datei nach `dist/` |
 
 ## Konfiguration
 
@@ -47,15 +50,21 @@ Alle Einstellungen kommen aus Umgebungsvariablen, siehe `.env.example`. Fehlt et
 | `PORT`, `HOST` | nein | Standard `3000` und `0.0.0.0` |
 | `TRUST_PROXY` | nein | `true`, wenn ein Proxy wie Caddy davor läuft |
 | `LOG_LEVEL` | nein | Standard `info` |
+| `SMTP_URL` | im Betrieb | Mail-Versand, bei Brevo `smtp://LOGIN:SCHLUESSEL@smtp-relay.brevo.com:587` (`@` im Login als `%40` schreiben). Fehlt er, stehen die Mails im Log |
+| `MAIL_FROM` | im Betrieb | Absender, z. B. `Stempelei <hallo@deine-domain.de>`. Die Domain muss in Brevo bestätigt sein (SPF, DKIM, DMARC) |
 
 ## Aufbau
 
 ```
-public/                Website (Demo): index.html, CSS (tokens.css, base.css, style.css), JS, Schriften, QR-Bibliotheken
+public/                Website: Startseite, Preise, Konto-Seiten, Dashboard, Rechtstexte, CSS, JS, Schriften
 src/
   server.ts            Start und sauberes Herunterfahren
   app.ts               Fastify: Sicherheits-Header, /api/health, statische Dateien
   config.ts            Umgebungsvariablen prüfen
+  routes/auth.ts       Konten: registrieren, bestätigen, anmelden, Passwort zurücksetzen
+  auth/crypto.ts       Argon2id für Passwörter, Tokens und ihre Hashes
+  mail.ts              Mail-Versand über SMTP (Brevo) oder ins Log
+  mail-texts.ts        Texte der E-Mails auf Deutsch und Englisch
   db/schema.ts         Datenmodell (Drizzle)
   db/client.ts         Datenbankverbindung
   db/migrate.ts        Migrationen ausführen
@@ -64,8 +73,24 @@ src/
   domain/plans.ts      14 Tage Testphase
 drizzle/               SQL-Migrationen
 test/                  Tests mit node:test
-tools/build-single.mjs Ein-Datei-Version der Demo
 ```
+
+## Seiten
+
+| Adresse | Inhalt |
+| --- | --- |
+| `/` | Startseite für Betriebe |
+| `/pricing` | Pakete und Preise |
+| `/register`, `/login` | Konto anlegen, anmelden |
+| `/verify`, `/forgot-password`, `/reset-password` | Links aus den E-Mails |
+| `/dashboard` | Übersicht mit Checkliste der nächsten Schritte |
+| `/imprint`, `/privacy` | Impressum und Datenschutz, nur auf Deutsch |
+
+## Sprachen
+
+Der deutsche Text steht direkt im HTML. Elemente mit `data-i18n="schlüssel"` bekommen auf Englisch ihren Text aus dem Wörterbuch in `public/assets/js/i18n.js`, `data-i18n-attr="aria-label:schlüssel"` übersetzt Attribute. Texte aus Skripten stehen als `I18N.t({ de, en })` direkt im Code. Die Wahl merkt sich der Browser, ohne Wahl gilt die Sprache des Browsers. E-Mails gehen in der Sprache der Seite raus, von der die Anfrage kommt, sonst in der bei der Registrierung gespeicherten.
+
+Neue Seite oder neuer Text: deutschen Text ins HTML, Schlüssel per `data-i18n` dran, englischen Text unter demselben Schlüssel in `EN` eintragen.
 
 ## Gestaltung
 
@@ -74,4 +99,3 @@ Die Website folgt dem Design-Skill [Hallmark](https://github.com/Nutlope/hallmar
 ## Lizenzen der eingebundenen Dateien
 
 - Schriften Hanken Grotesk und Geist Mono: SIL Open Font License (`public/assets/fonts/`)
-- qrcode-generator: MIT, jsQR: Apache-2.0 (`public/assets/vendor/`)

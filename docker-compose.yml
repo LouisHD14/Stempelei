@@ -20,9 +20,12 @@ services:
   app:
     build: .
     environment:
-      NODE_ENV: production
+      # Zum Ausprobieren ohne Mail-Zugang NODE_ENV=development in .env setzen, dann stehen die Mails im Log
+      NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: postgres://stempelei:${POSTGRES_PASSWORD:-stempelei}@db:5432/stempelei
       PUBLIC_URL: ${PUBLIC_URL:-https://localhost}
+      SMTP_URL: ${SMTP_URL:-}
+      MAIL_FROM: ${MAIL_FROM:-}
       TRUST_PROXY: "false"
     ports:
       - "127.0.0.1:3000:3000"
