@@ -41,7 +41,7 @@ const body = bodyMatch[1].replace(/<script src="([^"]+)"><\/script>/g, (_, src) 
 if (/<script src=/.test(body)) throw new Error('Nicht eingebettetes Skript gefunden');
 
 // Inline-Skripte aus dem <head> (z. B. die js-Klasse) bleiben erhalten
-const headScripts = (/<head>([\s\S]*?)<\/head>/.exec(html)?.[1].match(/<script>[\s\S]*?<\/script>/g)) ?? [];
+const headScripts = /<head>([\s\S]*?)<\/head>/.exec(html)?.[1].match(/<script>[\s\S]*?<\/script>/g) ?? [];
 
 const headParts = [
   titleMatch[0],
