@@ -1,0 +1,29 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "site",
+  "shape": "Narrative Workflow",
+  "theme": "coral",
+  "axes": "light/grotesk-sans/warm",
+  "hero": "Settled",
+  "nav": "banner over a retracting bar",
+  "footer": "colophon block",
+  "imagery": "the product, live",
+  "photos": [],
+  "entry": "index",
+  "sections": [
+   "hero",
+   "pinned",
+   "table",
+   "rows",
+   "split"
+  ],
+  "signature": "the stamp pressed into the card, the redeemed reward pressed in coral",
+  "waived": [
+   "28b"
+  ],
+  "prompt": "digitale Stempelkarten für Restaurants, Cafés und Läden",
+  "date": "2026-11-06"
+ }
+]

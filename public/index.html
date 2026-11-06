@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stempelei</title>
+<meta name="description" content="Digitale Stempelkarten für Restaurants, Cafés und Läden. Gäste sammeln auf dem Handy, das Team stempelt an der Kasse.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="4" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.45 1.08" result="mask"/>
+    <feComposite in="SourceGraphic" in2="mask" operator="in"/>
+  </filter>
+  <filter id="press" x="-10%" y="-20%" width="120%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="9" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.4 1.3" result="mask"/>
+    <feComposite in="SourceGraphic" in2="mask" operator="in" result="inked"/>
+    <feOffset in="SourceAlpha" dx="-0.6" dy="-0.8" result="wall"/>
+    <feComposite in="wall" in2="SourceAlpha" operator="in" result="wallIn"/>
+    <feFlood flood-color="black" flood-opacity="0.18"/>
+    <feComposite in2="wallIn" operator="in" result="shade"/>
+    <feMerge><feMergeNode in="inked"/><feMergeNode in="shade"/></feMerge>
+  </filter>
+</svg>
+
+<div class="banner"><div class="container"><a href="#preise">Jedes Paket 14 Tage kostenlos testen</a></div></div>
+<header class="bar">
+  <div class="container">
+    <a class="brand" href="#start" aria-label="Stempelei, zur Startseite">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      Stempelei
+    </a>
+    <nav class="nav" aria-label="Hauptmenü">
+      <a href="#start" data-nav="start">Start</a>
+      <a href="#preise" data-nav="preise">Preise</a>
+      <a href="#kasse" data-nav="kasse">Kasse</a>
+    </nav>
+    <a class="btn btn--ink btn--s bar-cta" href="#kasse">Kasse ausprobieren</a>
+  </div>
+</header>
+
+<!-- ================= Start ================= -->
+<main lang="de" class="view" id="view-start" data-view="start">
+  <section class="hero desk" aria-labelledby="h-start">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <h1 id="h-start">Die Stempelkarte, die nie zu Hause liegt.</h1>
+        <p class="lead">Gäste sammeln auf dem Handy, dein Team stempelt per QR-Code.</p>
+        <div class="actions">
+          <a class="btn btn--ink" href="#kasse">Kasse ausprobieren</a>
+          <a class="btn btn--card" href="#preise">Pakete ansehen</a>
+        </div>
+        <p class="hero-note">Ab 29 € im Monat. Gäste brauchen weder App noch Konto.</p>
+      </div>
+      <figure class="hero-visual">
+        <div data-card="hero"></div>
+        <div class="try" role="group" aria-label="Diese Karte stempeln">
+          <button class="btn btn--ink" id="heroGive" type="button">Stempel geben</button>
+          <button class="btn btn--card" id="heroRedeem" type="button" hidden></button>
+          <button class="btn btn--card" id="heroUndo" type="button">Rückgängig</button>
+        </div>
+        <p class="flash" id="heroFlash" aria-live="polite"></p>
+        <figcaption>Probier es aus: Du stehst an der Kasse und stempelst die Karte deines Gasts.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="flow" aria-labelledby="h-flow">
+    <div class="container">
+      <h2 id="h-flow">So läuft ein Besuch</h2>
+      <div class="flow-grid">
+        <ol class="flow-steps">
+          <li data-stage="1">
+            <h3>Der Gast zeigt seine Karte.</h3>
+            <p>Sie liegt als Seite im Browser, ohne App und ohne Konto. Oben steht der Betrieb, unten der QR-Code.</p>
+            <div class="flow-inline" data-inline="1"></div>
+          </li>
+          <li data-stage="2">
+            <h3>Dein Team scannt und stempelt.</h3>
+            <p>Mit der Kamera von Handy oder Tablet. Klappt das nicht, tippt es die Kartennummer ein.</p>
+            <div class="flow-inline" data-inline="2"></div>
+          </li>
+          <li data-stage="3">
+            <h3>Die Prämie wird eingelöst.</h3>
+            <p>Ein Tipp an der Kasse. Nach der letzten Prämie beginnt die Karte von vorn.</p>
+            <div class="flow-inline" data-inline="3"></div>
+          </li>
+        </ol>
+        <figure class="flow-visual desk" id="flowVisual" data-active="1" aria-label="Die drei Stationen eines Besuchs">
+          <div class="flow-obj" data-obj="1"><div data-card="flow"></div></div>
+          <div class="flow-obj" data-obj="2">
+            <div class="slip stock" aria-hidden="true">
+              <h4>Karte <span class="fig">0427</span> geöffnet</h4>
+              <dl>
+                <dt>Gelesen per</dt><dd>Kamera</dd>
+                <dt>Stempel</dt><dd><span class="fig">4 / 10</span></dd>
+                <dt>Nächste Prämie</dt><dd>Espresso aufs Haus</dd>
+              </dl>
+              <span class="btn btn--ink">1 Stempel vergeben</span>
+            </div>
+          </div>
+          <div class="flow-obj" data-obj="3">
+            <div class="slip stock" aria-hidden="true">
+              <h4>Trattoria Mia</h4>
+              <div class="row-line"><span>Dessert aufs Haus</span><span class="fig">10 Stempel</span></div>
+              <div class="row-line"><span>Karte <span class="fig">0427</span></span><span class="pressed">Eingelöst</span></div>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="trades" aria-labelledby="h-trades">
+    <div class="container split-head">
+      <header>
+        <h2 id="h-trades">Für jeden Betrieb mit Stammkundschaft</h2>
+        <p>Jede Branche hat eine Vorlage als Startpunkt.</p>
+      </header>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th scope="col">Branche</th><th scope="col">Karte</th><th scope="col">Typische Prämie</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Restaurant</th><td class="fig">10 Besuche</td><td>Dessert aufs Haus</td></tr>
+            <tr><th scope="row">Café</th><td class="fig">8 Getränke</td><td>Kaffee gratis</td></tr>
+            <tr><th scope="row">Bäckerei</th><td class="fig">10 Einkäufe</td><td>Brotlaib gratis</td></tr>
+            <tr><th scope="row">Friseur</th><td class="fig">6 Termine</td><td>Haarwäsche gratis</td></tr>
+            <tr><th scope="row">Eisdiele</th><td class="fig">12 Kugeln</td><td>Becher gratis</td></tr>
+            <tr><th scope="row">Waschstraße</th><td class="fig">8 Wäschen</td><td>Wäsche gratis</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" aria-labelledby="h-faq">
+    <div class="container split-head">
+      <header><h2 id="h-faq">Fragen vor dem Start</h2></header>
+      <dl class="rows">
+        <div><dt>Brauchen meine Gäste eine App?</dt><dd>Nein. Die Karte ist eine Webseite, als Lesezeichen oder auf dem Startbildschirm.</dd></div>
+        <div><dt>Was brauche ich an der Kasse?</dt><dd>Ein Handy oder Tablet mit Kamera und Browser. Mehr nicht.</dd></div>
+        <div><dt>Können Gäste sich selbst stempeln?</dt><dd>Nein. Stempel vergibt nur dein Team, nach der Anmeldung mit eurem Zugangscode.</dd></div>
+        <div><dt>Welche Daten speichert eine Karte?</dt><dd>Kartennummer, Stempelstand und eingelöste Prämien. Keine Namen, keine E-Mail-Adressen.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="setup-close" aria-labelledby="h-setup">
+    <div class="container setup-grid">
+      <div class="setup-text">
+        <h2 id="h-setup">Deine Karte, deine Regeln</h2>
+        <dl class="facts">
+          <div><dt>Name</dt><dd>So, wie Gäste deinen Laden kennen.</dd></div>
+          <div><dt>Stempelregel</dt><dd>Zum Beispiel jeden Besuch ab 10 € Umsatz.</dd></div>
+          <div><dt>Prämien</dt><dd>Bis zu 5, jede mit eigener Stempelzahl, bis 20 Felder.</dd></div>
+          <div><dt>Stempelfarbe</dt><dd>Vier Farben für die Stempel.</dd></div>
+        </dl>
+        <div class="groove" id="templates" role="group" aria-label="Vorlage ausprobieren"></div>
+        <a class="btn btn--ink" href="#kasse">Karte in der Kasse einrichten</a>
+      </div>
+      <figure class="setup-visual desk">
+        <div data-card="setup"></div>
+        <figcaption>Die Vorlage ändert die Karte sofort, auch oben im Beispiel.</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- ================= Preise ================= -->
+<main lang="de" class="view" id="view-preise" data-view="preise" hidden>
+  <section class="container page-head" aria-labelledby="h-preise">
+    <h1 id="h-preise">Ein Paket für jede Größe.</h1>
+    <p class="lead">Jedes Paket 14 Tage kostenlos testen, danach monatlich.</p>
+  </section>
+
+  <section class="container" aria-label="Pakete">
+    <div class="tiers">
+      <article class="tier stock">
+        <header><h2>Klein</h2><span class="tag">unter 1 € am Tag</span></header>
+        <p class="for">Für einen Laden, ein Café oder ein Restaurant.</p>
+        <div><p class="price"><span class="amt">29 €</span><span class="per">im Monat</span></p><p class="perday fig">0,97 € pro Tag</p></div>
+        <ul class="ticks">
+          <li>1 Standort</li>
+          <li>1 Stempelkarte</li>
+          <li>3 Team-Zugänge</li>
+          <li>Unbegrenzt viele Gäste</li>
+        </ul>
+        <a class="btn btn--ink" href="#kasse">Klein testen</a>
+      </article>
+      <article class="tier stock">
+        <header><h2>Mittel</h2></header>
+        <p class="for">Für Betriebe mit mehreren Filialen oder Angeboten.</p>
+        <div><p class="price"><span class="amt">59 €</span><span class="per">im Monat</span></p><p class="perday fig">1,97 € pro Tag</p></div>
+        <ul class="ticks">
+          <li>Bis zu 3 Standorte</li>
+          <li>Bis zu 3 Stempelkarten, etwa Mittag und Abend</li>
+          <li>10 Team-Zugänge</li>
+          <li>Unbegrenzt viele Gäste</li>
+        </ul>
+        <a class="btn btn--card" href="#kasse">Mittel testen</a>
+      </article>
+      <article class="tier stock">
+        <header><h2>Groß</h2></header>
+        <p class="for">Für Ketten und große Häuser.</p>
+        <div><p class="price"><span class="amt">99 €</span><span class="per">im Monat</span></p><p class="perday fig">3,30 € pro Tag</p></div>
+        <ul class="ticks">
+          <li>Bis zu 10 Standorte</li>
+          <li>Unbegrenzt viele Stempelkarten</li>
+          <li>Unbegrenzt viele Team-Zugänge</li>
+          <li>Auswertung pro Standort und Woche</li>
+        </ul>
+        <a class="btn btn--card" href="#kasse">Groß testen</a>
+      </article>
+    </div>
+    <p class="pricenote">Alle Preise pro Monat und Betrieb, <span class="fill">inkl./zzgl.</span> gesetzlicher Umsatzsteuer. Pro Tag gerechnet mit 30 Tagen, auf den Cent gerundet.</p>
+  </section>
+
+  <section class="compare-sec" aria-labelledby="h-compare">
+    <div class="container">
+      <h2 id="h-compare">Was jedes Paket enthält</h2>
+      <div class="tablebox">
+        <table class="compare">
+          <thead><tr><th scope="col">Leistung</th><th scope="col">Klein</th><th scope="col">Mittel</th><th scope="col">Groß</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Standorte</th><td class="fig">1</td><td class="fig">3</td><td class="fig">10</td></tr>
+            <tr><th scope="row">Stempelkarten</th><td class="fig">1</td><td class="fig">3</td><td>unbegrenzt</td></tr>
+            <tr><th scope="row">Team-Zugänge</th><td class="fig">3</td><td class="fig">10</td><td>unbegrenzt</td></tr>
+            <tr><th scope="row">Gäste</th><td>unbegrenzt</td><td>unbegrenzt</td><td>unbegrenzt</td></tr>
+            <tr><th scope="row">Kasse mit Kamera-Scanner</th><td>ja</td><td>ja</td><td>ja</td></tr>
+            <tr><th scope="row">Eigene Prämien und Stempelregel</th><td>ja</td><td>ja</td><td>ja</td></tr>
+            <tr><th scope="row">Tagesübersicht an der Kasse</th><td>ja</td><td>ja</td><td>ja</td></tr>
+            <tr><th scope="row">Auswertung pro Standort und Woche</th><td class="no">nein</td><td class="no">nein</td><td>ja</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="board board-sec" aria-labelledby="h-board">
+    <div class="container board-grid">
+      <div class="board-fig">
+        <h2 id="h-board" class="big">0,97 €<span class="unit"> pro Tag</span></h2>
+        <p>Paket Klein: 29 € geteilt durch 30 Tage. Weniger als ein Kaffee für die Karte, die Gäste wiederkommen lässt.</p>
+      </div>
+      <div>
+        <ul class="board-list">
+          <li>Die Kasse mit Kamera-Scanner</li>
+          <li>Unbegrenzt viele Gäste und Karten</li>
+          <li>Eigene Prämien und Stempelregel</li>
+          <li>Drei Team-Zugänge</li>
+        </ul>
+        <a class="btn btn--card" href="#kasse">Kasse ausprobieren</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="terms" aria-labelledby="h-terms">
+    <div class="container split-head">
+      <header><h2 id="h-terms">Was die Pakete zählen</h2></header>
+      <dl class="rows">
+        <div><dt>Ein Standort</dt><dd>Eine Filiale mit eigener Adresse. Stempel gelten in allen Standorten, die Auswertung zeigt sie getrennt.</dd></div>
+        <div><dt>Eine Stempelkarte</dt><dd>Eine Kartenart mit eigener Regel und eigenen Prämien, etwa eine Mittags- und eine Kaffeekarte.</dd></div>
+        <div><dt>Ein Team-Zugang</dt><dd>Eine Person, die stempeln darf. Jede bekommt einen eigenen Code, damit der Verlauf zeigt, wer gestempelt hat.</dd></div>
+        <div><dt>Die Laufzeit</dt><dd>Die ersten 14 Tage sind kostenlos, danach monatlich per Karte oder SEPA über Stripe. Mindestlaufzeit und Kündigungsfrist: <span class="fill">noch festlegen</span>.</dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<!-- ================= Kasse ================= -->
+<main lang="de" class="view app" id="view-kasse" data-view="kasse" hidden>
+  <div class="container">
+    <section class="login stock" id="kLogin" aria-labelledby="h-login">
+      <h1 id="h-login">Kasse</h1>
+      <p>Die Kasse ist in jedem Paket enthalten. Melde dich mit dem Zugangscode deines Betriebs an.</p>
+      <form id="loginForm" autocomplete="off">
+        <input id="loginCode" type="password" inputmode="numeric" maxlength="4" placeholder="••••" aria-label="Zugangscode" aria-describedby="loginHint">
+        <button class="btn btn--ink" type="submit">Anmelden</button>
+      </form>
+      <p class="muted" id="loginHint">Demo-Zugangscode: <span class="fig">1234</span></p>
+      <p class="flash err" id="loginFlash" aria-live="polite"></p>
+    </section>
+
+    <div class="kasse" id="kMain" hidden>
+      <section class="kasse-head">
+        <div>
+          <h1 id="kBiz"></h1>
+          <div class="tags"><span class="tag-chip">Paket Klein</span><span class="tag-chip">Demo</span></div>
+        </div>
+        <button class="btn btn--card btn--s" id="logout" type="button">Abmelden</button>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Bereiche der Kasse">
+        <button class="tab" role="tab" id="tab-stempeln" aria-controls="panel-stempeln" aria-selected="true" type="button" data-tab="stempeln">Stempeln</button>
+        <button class="tab" role="tab" id="tab-einrichten" aria-controls="panel-einrichten" aria-selected="false" tabindex="-1" type="button" data-tab="einrichten">Karte einrichten</button>
+        <button class="tab" role="tab" id="tab-verlauf" aria-controls="panel-verlauf" aria-selected="false" tabindex="-1" type="button" data-tab="verlauf">Verlauf</button>
+      </div>
+
+      <!-- Stempeln -->
+      <section class="k-grid" role="tabpanel" id="panel-stempeln" aria-labelledby="tab-stempeln">
+        <div class="pane">
+          <h2>Karte des Gasts öffnen</h2>
+          <div class="group">
+            <div class="cam" id="cam" hidden>
+              <video id="camVideo" playsinline muted></video>
+              <div class="frame" aria-hidden="true"></div>
+            </div>
+            <div class="actions">
+              <button class="btn btn--ink" id="camStart" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg>
+                Code scannen
+              </button>
+              <button class="btn btn--card" id="camStop" type="button" hidden>Scannen beenden</button>
+            </div>
+            <p class="flash" id="scanFlash" aria-live="polite"></p>
+          </div>
+          <div class="or">oder</div>
+          <div class="group">
+            <form class="numform" id="numForm" autocomplete="off">
+              <label class="visually-hidden" for="numInput">Kartennummer</label>
+              <input id="numInput" type="text" inputmode="numeric" maxlength="20" placeholder="Kartennummer, z. B. 0427">
+              <button class="btn btn--card" type="submit">Öffnen</button>
+            </form>
+            <div class="actions">
+              <input class="visually-hidden vh" id="photoInput" type="file" accept="image/*" capture="environment">
+              <label class="btn btn--card btn--s" for="photoInput">Foto vom Code wählen</label>
+              <button class="btn btn--card btn--s" id="newCard" type="button">Neue Karte ausgeben</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane" id="kCardPanel" tabindex="-1">
+          <div class="empty-card" id="kEmpty">
+            <h2>Noch keine Karte offen</h2>
+            <p>Scanne den Code auf dem Handy des Gasts oder tippe die Kartennummer ein. Demo-Codes findest du unter „Verlauf“.</p>
+            <button class="btn btn--card btn--s" id="openDemo" type="button">Demo-Karte 0427 öffnen</button>
+          </div>
+
+          <div class="group" id="kOpen" hidden>
+            <div class="k-card-head">
+              <h2>Karte <span class="fig" id="kId"></span></h2>
+              <div class="actions">
+                <a class="btn btn--card btn--s" id="kGuestLink" href="#karte">Gast-Ansicht</a>
+                <button class="btn btn--card btn--s" id="kClose" type="button">Schließen</button>
+              </div>
+            </div>
+            <div class="newcard" id="kNew" hidden>
+              <div class="qr" id="kNewQr"></div>
+              <p><b>Neue Karte ausgegeben.</b> Der Gast scannt diesen Code mit seinem Handy und speichert die Seite. Ab jetzt zeigt er ihn bei jedem Besuch.</p>
+            </div>
+            <div data-card="kasse"></div>
+
+            <div class="group">
+              <h3>Stempel vergeben</h3>
+              <div class="actions">
+                <div class="stepper">
+                  <button class="btn btn--card" id="amtMinus" type="button" aria-label="Einen Stempel weniger">−</button>
+                  <input id="amtInput" type="number" min="1" max="20" value="1" inputmode="numeric" aria-label="Anzahl Stempel">
+                  <button class="btn btn--card" id="amtPlus" type="button" aria-label="Einen Stempel mehr">+</button>
+                </div>
+                <button class="btn btn--ink" id="kGive" type="button">1 Stempel vergeben</button>
+              </div>
+            </div>
+
+            <div class="group" id="kRedeemGroup" hidden>
+              <h3>Prämie einlösen</h3>
+              <div class="redeem-list" id="kRedeemList"></div>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn--card" id="kUndo" type="button">Rückgängig</button>
+            </div>
+            <p class="flash" id="kFlash" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Karte einrichten -->
+      <section class="setup" role="tabpanel" id="panel-einrichten" aria-labelledby="tab-einrichten" hidden>
+        <div class="pane" id="setupForm">
+          <div class="group">
+            <h3>Vorlage</h3>
+            <div class="groove" id="presets" role="group" aria-label="Vorlage wählen"></div>
+            <p class="help">Eine Vorlage ersetzt Name, Regel und Prämien. Stempelstände bleiben erhalten.</p>
+          </div>
+          <div class="field">
+            <label for="fName">Name deines Betriebs</label>
+            <input id="fName" type="text" maxlength="32" placeholder="z. B. Pizzeria Bella">
+          </div>
+          <div class="field">
+            <label for="fEarn">Einen Stempel gibt es für</label>
+            <input id="fEarn" type="text" maxlength="50" placeholder="z. B. jeden Besuch ab 10 € Umsatz">
+          </div>
+          <div class="group">
+            <h3>Prämien</h3>
+            <div class="rhead" aria-hidden="true"><span>Stempel</span><span>Was gibt es?</span><span></span></div>
+            <div class="rrows" id="rrows"></div>
+            <div class="actions"><button class="btn btn--card btn--s" id="addReward" type="button">Prämie hinzufügen</button></div>
+            <p class="help">Bis zu 5 Prämien, bis zu 20 Stempel. Die höchste Stempelzahl ist die Länge der Karte.</p>
+          </div>
+          <div class="group">
+            <h3>Stempelfarbe</h3>
+            <div class="swatches" id="swatches" role="group" aria-label="Stempelfarbe"></div>
+          </div>
+          <p class="flash" id="setupFlash" aria-live="polite"></p>
+        </div>
+        <div class="preview">
+          <p>So sieht dein Gast die Karte.</p>
+          <div data-card="preview"></div>
+        </div>
+      </section>
+
+      <!-- Verlauf -->
+      <section class="k-grid" role="tabpanel" id="panel-verlauf" aria-labelledby="tab-verlauf" hidden>
+        <div class="pane">
+          <h2>Heute</h2>
+          <div class="stats">
+            <div class="stat"><b id="statGive">0</b><span>Stempel</span></div>
+            <div class="stat"><b id="statRedeem">0</b><span>Prämien</span></div>
+            <div class="stat"><b id="statNew">0</b><span>neue Karten</span></div>
+          </div>
+          <ul class="log" id="log"></ul>
+        </div>
+        <div class="pane">
+          <h2>Demo-Karten</h2>
+          <p class="muted">Scanne einen Code mit einem zweiten Gerät oder öffne die Karte direkt. Die Gast-Ansicht in einem zweiten Tab zeigt jeden Stempel sofort.</p>
+          <div class="tiles" id="tiles"></div>
+          <div class="actions">
+            <button class="btn btn--card btn--s btn--danger" id="reset" type="button">Demo zurücksetzen</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ================= Gast-Ansicht ================= -->
+<main lang="de" class="view app" id="view-karte" data-view="karte" hidden>
+  <div class="container guest">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-bar" aria-hidden="true"><span class="fig" id="guestClock">12:00</span><span>stempelei</span></div>
+        <div data-card="guest"></div>
+        <p class="muted" id="guestMissing" hidden>Diese Karte gibt es nicht. Prüfe den Link oder lass dir an der Kasse eine neue Karte geben.</p>
+      </div>
+    </div>
+    <div class="guest-text">
+      <h1>So sieht dein Gast seine Karte.</h1>
+      <p class="lead">Öffne die Kasse in einem zweiten Tab und stempel diese Karte. Die Ansicht hier ändert sich sofort.</p>
+      <div class="actions">
+        <a class="btn btn--ink" href="#kasse">Zur Kasse</a>
+        <a class="btn btn--card" href="#start">Zur Startseite</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ================= Impressum ================= -->
+<main lang="de" class="view legal" id="view-impressum" data-view="impressum" hidden>
+  <article class="container">
+            <h1>Impressum</h1>
+      <p class="draft">Entwurf. Markierte Angaben fehlen noch und müssen vor dem Start ausgefüllt werden.</p>
+
+      <h2>Angaben nach § 5 DDG</h2>
+      <p><span class="fill">Name oder Firma</span><br><span class="fill">Rechtsform und vertretungsberechtigte Person</span><br><span class="fill">Straße und Hausnummer</span><br><span class="fill">Postleitzahl und Ort</span></p>
+
+      <h2>Kontakt</h2>
+      <p>E-Mail: <span class="fill">E-Mail-Adresse</span><br>Telefon: <span class="fill">Telefonnummer</span></p>
+
+      <h2>Registereintrag</h2>
+      <p><span class="fill">Registergericht und Registernummer, falls vorhanden</span></p>
+
+      <h2>Umsatzsteuer-Identifikationsnummer</h2>
+      <p><span class="fill">USt-IdNr. nach § 27a UStG, falls vorhanden</span></p>
+
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p><span class="fill">Name und Anschrift, falls abweichend von oben</span></p>
+
+      <h2>Verbraucherstreitbeilegung</h2>
+      <p><span class="fill">Hinweis nach § 36 VSBG, ob du an Verfahren vor einer Verbraucherschlichtungsstelle teilnimmst</span></p>
+    
+  </article>
+</main>
+
+<!-- ================= Datenschutz ================= -->
+<main lang="de" class="view legal" id="view-datenschutz" data-view="datenschutz" hidden>
+  <article class="container">
+            <h1>Datenschutzerklärung</h1>
+      <p class="draft">Entwurf. Markierte Angaben fehlen noch. Lass den Text vor dem Start rechtlich prüfen.</p>
+
+      <h2>1. Verantwortlicher</h2>
+      <p>Verantwortlich für die Verarbeitung deiner Daten auf dieser Website und für dein Betriebskonto ist:</p>
+      <p><span class="fill">Name oder Firma</span><br><span class="fill">Straße und Hausnummer</span><br><span class="fill">Postleitzahl und Ort</span><br>E-Mail: <span class="fill">E-Mail-Adresse für Datenschutzfragen</span></p>
+
+      <h2>2. Wer ist wofür verantwortlich</h2>
+      <p>Für Betriebe und für Gäste gelten unterschiedliche Rollen. Betriebe bieten Stempelkarten an, Gäste sammeln darauf Stempel.</p>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>Daten</th><th>Verantwortlich ist</th><th>Unsere Rolle</th></tr></thead>
+          <tbody>
+            <tr><td>Website, Betriebskonto, Bezahlung</td><td>Stempelei</td><td>Verantwortlicher</td></tr>
+            <tr><td>Karten und Stempel der Gäste</td><td>der jeweilige Betrieb</td><td>Auftragsverarbeiter nach Art. 28 DSGVO</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Der Betrieb entscheidet, wer eine Karte bekommt und wofür es Stempel und Prämien gibt. Wir verarbeiten die Daten der Gäste nur nach seinen Weisungen.</p>
+
+      <h2>3. Besuch dieser Website</h2>
+      <p>Beim Aufruf der Website speichert unser Server automatisch Zugriffsdaten in Logfiles. Das ist technisch nötig, damit die Seite ausgeliefert wird.</p>
+      <ul>
+        <li>IP-Adresse des anfragenden Geräts</li>
+        <li>Datum und Uhrzeit des Zugriffs</li>
+        <li>aufgerufene Seite</li>
+        <li>Browser und Betriebssystem</li>
+        <li>zuvor besuchte Seite (Referrer)</li>
+      </ul>
+      <p>Wir nutzen diese Daten, um die Seite sicher und stabil zu betreiben und Angriffe abzuwehren. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO, unser berechtigtes Interesse an einem sicheren Betrieb. Die Logfiles werden nach <span class="fill">Zahl</span> Tagen gelöscht.</p>
+      <p>Die Website läuft bei <span class="fill">Hosting-Anbieter, Sitz und Serverstandort</span>. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung.</p>
+      <p>Schriftarten und Programmbibliotheken, etwa für die QR-Codes, liegen auf unserem eigenen Server. Beim Laden der Seite werden keine Daten an Dritte übertragen. Wir setzen keine Analyse- und keine Werbedienste ein.</p>
+
+      <h2>4. Speicherung im Browser</h2>
+      <p>Diese Website setzt keine Cookies. Die Demo speichert die Einstellungen der Karte, die Stempelstände der Beispielkarten und den Verlauf im lokalen Speicher deines Browsers (localStorage). Ob du an der Kasse angemeldet bist, merkt sich der Browser nur bis zum Schließen des Tabs (sessionStorage). Diese Daten bleiben auf deinem Gerät und werden nicht an uns übertragen.</p>
+      <p>Die Speicherung ist für die Funktion erforderlich, die du selbst nutzt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Du kannst die Daten jederzeit in den Einstellungen deines Browsers oder mit „Demo zurücksetzen“ in der Kasse löschen.</p>
+
+      <h2>5. Kamera und Fotos in der Kasse</h2>
+      <p>Wenn du in der Kasse „Code scannen“ wählst, fragt dein Browser um Erlaubnis für die Kamera. Das Kamerabild wird nur auf deinem Gerät nach einem QR-Code durchsucht. Es wird weder gespeichert noch an uns oder Dritte übertragen. Die Kamera schaltet sich ab, sobald ein Code erkannt ist, du „Scannen beenden“ wählst oder die Kasse verlässt.</p>
+      <p>Wählst du stattdessen ein Foto aus, gilt dasselbe: Dein Browser liest den Code auf dem Gerät aus, das Foto verlässt dein Gerät nicht.</p>
+
+      <h2>6. Konto und Bezahlung für Betriebe</h2>
+      <p>Wenn du Stempelei für deinen Betrieb nutzt, verarbeiten wir die Daten, die für den Vertrag nötig sind. Der Preis richtet sich nach dem gewählten Paket.</p>
+      <ul>
+        <li>Name des Betriebs und der Ansprechperson</li>
+        <li>Anschrift und E-Mail-Adresse</li>
+        <li>Rechnungs- und Zahlungsdaten</li>
+        <li>deine Einstellungen: Kartenname, Stempelregel, Prämien, Stempelfarbe und die Zugangscodes deines Teams</li>
+      </ul>
+      <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, die Erfüllung des Vertrags mit dir. Rechnungsdaten bewahren wir außerdem nach Art. 6 Abs. 1 lit. c DSGVO so lange auf, wie Steuer- und Handelsrecht es verlangen.</p>
+      <p>Die Zahlung wickelt die Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irland ab. Deine Zahlungsdaten gibst du direkt bei Stripe ein. Wir erhalten von Stripe den Zahlungsstatus, aber keine vollständigen Karten- oder Kontodaten. Die Datenschutzerklärung von Stripe findest du unter stripe.com/de/privacy.</p>
+
+      <h2>7. Stempelkarten der Gäste</h2>
+      <p>Wenn du als Gast eine digitale Stempelkarte nutzt, ist der Betrieb verantwortlich, bei dem du sammelst. Wir verarbeiten die Daten in seinem Auftrag. Eine Karte braucht keinen Namen und kein Konto. An der Kasse liest das Team nur die Kartennummer aus deinem QR-Code.</p>
+      <ul>
+        <li>Kartennummer, über die deine Karte erkannt wird</li>
+        <li>Stempelstand und Zeitpunkt jedes Stempels</li>
+        <li>eingelöste Prämien und Zeitpunkt der Einlösung</li>
+        <li>der Betrieb, zu dem die Karte gehört</li>
+      </ul>
+      <p>Der Betrieb legt Zweck und Rechtsgrundlage fest und informiert dich darüber. Wir nutzen die Daten der Gäste nicht für eigene Zwecke, nicht für Werbung und geben sie nicht an andere Betriebe weiter.</p>
+      <p>Für Auskunft, Berichtigung oder Löschung deiner Kartendaten wende dich an den Betrieb. Wir unterstützen ihn dabei.</p>
+
+      <h2>8. Empfänger und Drittländer</h2>
+      <p>Wir geben Daten nur an Dienstleister weiter, die wir für den Betrieb von Stempelei brauchen. Mit allen besteht ein Vertrag zur Auftragsverarbeitung.</p>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>Empfänger</th><th>Wofür</th><th>Daten</th></tr></thead>
+          <tbody>
+            <tr><td><span class="fill">Hosting-Anbieter</span></td><td>Betrieb von Website und Datenbank</td><td>alle Daten, die in Stempelei gespeichert sind</td></tr>
+            <tr><td>Stripe Payments Europe, Limited (Irland)</td><td>Abrechnung deines Pakets</td><td>Daten des Betriebs, Rechnungs- und Zahlungsdaten</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Stripe kann Daten an die Stripe, Inc. in den USA übermitteln. Grundlage dafür sind der Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework und die Standardvertragsklauseln der EU-Kommission. Beim Hosting findet eine Übermittlung in Länder außerhalb der EU und des EWR <span class="fill">nicht</span> statt. Zu Werbezwecken geben wir keine Daten weiter.</p>
+
+      <h2>9. Speicherdauer</h2>
+      <p>Wir speichern Daten nur so lange, wie wir sie für den jeweiligen Zweck brauchen.</p>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>Daten</th><th>Speicherdauer</th></tr></thead>
+          <tbody>
+            <tr><td>Logfiles der Website</td><td><span class="fill">Zahl</span> Tage</td></tr>
+            <tr><td>Betriebskonto und Einstellungen</td><td>bis zur Kündigung, danach Löschung nach <span class="fill">Zahl</span> Tagen</td></tr>
+            <tr><td>Rechnungsdaten</td><td>bis zum Ende der gesetzlichen Aufbewahrungsfristen</td></tr>
+            <tr><td>Karten der Gäste</td><td>solange der Betrieb sie führt, danach Löschung nach <span class="fill">Zahl</span> Tagen oder früher auf Weisung des Betriebs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>10. Deine Rechte</h2>
+      <p>Du kannst gegenüber dem Verantwortlichen jederzeit diese Rechte geltend machen:</p>
+      <ul>
+        <li>Auskunft über deine gespeicherten Daten (Art. 15 DSGVO)</li>
+        <li>Berichtigung falscher Daten (Art. 16 DSGVO)</li>
+        <li>Löschung deiner Daten (Art. 17 DSGVO)</li>
+        <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+        <li>Herausgabe deiner Daten in einem gängigen Format (Art. 20 DSGVO)</li>
+        <li>Widerspruch gegen Verarbeitungen, die auf berechtigtem Interesse beruhen (Art. 21 DSGVO)</li>
+        <li>Widerruf einer Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+      </ul>
+      <p>Für deine Daten als Betrieb schreibst du an die Adresse in Abschnitt 1. Für deine Karte als Gast schreibst du an den Betrieb, bei dem du sammelst.</p>
+      <p>Du hast außerdem das Recht, dich bei einer Datenschutzaufsichtsbehörde zu beschweren (Art. 77 DSGVO). Für uns zuständig ist <span class="fill">zuständige Landesdatenschutzbehörde mit Anschrift</span>.</p>
+
+      <h2>11. Sicherheit und Änderungen</h2>
+      <p>Wir übertragen alle Daten verschlüsselt über HTTPS und geben Zugriff auf Betriebsdaten nur an Personen, die ihn für ihre Arbeit brauchen. Wenn wir den Dienst ändern, passen wir diese Erklärung an. Die jeweils aktuelle Fassung steht auf dieser Website.</p>
+      <p>Stand: 6. November 2026</p>
+    
+  </article>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span class="brandline">Stempelei.</span> Digitale Stempelkarten für Restaurants, Cafés und Läden. Diese Seite ist eine Demo mit erfundenen Beispielbetrieben, alle Daten bleiben in deinem Browser. <a href="#impressum">Impressum</a>, <a href="#datenschutz">Datenschutz</a> und die <a href="#karte">Gast-Ansicht</a> einer Demo-Karte.</p>
+  </div>
+</footer>
+
+<script src="assets/vendor/qrcode.js"></script>
+<script src="assets/vendor/jsQR.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

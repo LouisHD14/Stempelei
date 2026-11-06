@@ -3,6 +3,9 @@
 (function () {
   'use strict';
 
+  // Erst mit Skript werden die Ablauf-Bilder einzeln eingeblendet; ohne Skript bleiben alle sichtbar
+  document.documentElement.classList.add('js');
+
   // ---------- Konstanten ----------
   var KEY = 'stempelei-v4';
   var AUTH_KEY = 'stempelei-auth';
@@ -12,12 +15,14 @@
   var MAX_LOG = 60;
   var MAX_CARDS = 60;
 
+  // Die Farbwerte stehen als Tokens im Stylesheet (--ink-*)
   var INKS = {
-    blau: { label: 'Blau', hex: '#2A3FBF' },
-    gruen: { label: 'Grün', hex: '#1D7A4F' },
-    magenta: { label: 'Magenta', hex: '#B3245F' },
-    orange: { label: 'Orange', hex: '#B8440F' }
+    tinte: { label: 'Tinte' },
+    blau: { label: 'Blau' },
+    gruen: { label: 'Grün' },
+    koralle: { label: 'Koralle' }
   };
+  function inkVar(k) { return 'var(--ink-' + (INKS[k] ? k : 'tinte') + ')'; }
 
   var PRESETS = {
     restaurant: { label: 'Restaurant', name: 'Trattoria Mia', earn: 'jeden Besuch', rewards: [[5, 'Espresso aufs Haus'], [10, 'Dessert aufs Haus']] },
@@ -38,7 +43,7 @@
     var p = PRESETS.restaurant;
     return {
       v: 4,
-      biz: { type: 'restaurant', name: p.name, earn: p.earn, ink: 'blau', rewards: makeRewards(p.rewards, 1), nextId: 1 + p.rewards.length },
+      biz: { type: 'restaurant', name: p.name, earn: p.earn, ink: 'tinte', rewards: makeRewards(p.rewards, 1), nextId: 1 + p.rewards.length },
       cards: { '0427': blankCard(4), '0388': blankCard(9), '0512': blankCard(1) },
       me: '0427',
       log: [],
@@ -89,7 +94,7 @@
         type: PRESETS[b.type] ? b.type : 'eigen',
         name: typeof b.name === 'string' ? b.name.slice(0, 32) : d.biz.name,
         earn: typeof b.earn === 'string' ? b.earn.slice(0, 50) : d.biz.earn,
-        ink: INKS[b.ink] ? b.ink : 'blau',
+        ink: INKS[b.ink] ? b.ink : 'tinte',
         rewards: rewards.map(function (r) { return { id: r.id, at: r.at, text: r.text.slice(0, 40) }; }),
         nextId: isInt(b.nextId) && b.nextId > maxId ? b.nextId : maxId + 1
       },
@@ -213,7 +218,6 @@
     var card = el('div', 'card');
 
     var head = el('div', 'card-head');
-    head.appendChild(el('span', 'card-kind', 'Stempelkarte'));
     head.appendChild(el('h2', 'card-name', bizName()));
     var earn = (S.biz.earn || '').trim();
     if (earn) head.appendChild(el('p', 'card-earn', 'Einen Stempel gibt es für ' + earn + '.'));
@@ -222,7 +226,7 @@
     var slots = el('ol', 'slots');
     var cols = colsFor(g);
     slots.style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0, 1fr))';
-    slots.style.maxWidth = (cols * 76) + 'px';
+    slots.style.maxWidth = (cols * 104) + 'px';
     slots.setAttribute('aria-label', c.stamps + ' von ' + g + ' Stempeln');
     var rewardAt = {};
     S.biz.rewards.forEach(function (r) { rewardAt[r.at] = true; });
@@ -242,7 +246,7 @@
       var li = el('li', claimed ? 'done' : (free ? 'free' : ''));
       li.appendChild(el('span', 'at', r.at + ' Stempel'));
       li.appendChild(el('span', 'txt', rewardText(r)));
-      li.appendChild(el('span', 'st', claimed ? 'eingelöst' : (free ? 'frei' : '')));
+      li.appendChild(el('span', claimed ? 'st pressed' : 'st', claimed ? 'eingelöst' : (free ? 'frei' : '')));
       legend.appendChild(li);
     });
     card.appendChild(legend);
@@ -285,10 +289,11 @@
     }
 
     var foot = el('div', 'card-foot');
-    foot.appendChild(el('span', null, 'Karte Nr. ' + id));
-    var count = c.stamps + ' / ' + g;
-    if (c.redeemed > 0) count += ' · ' + c.redeemed + ' ' + plural(c.redeemed, 'Prämie', 'Prämien') + ' geholt';
-    foot.appendChild(el('span', null, count));
+    var nr = el('span', null, 'Karte ');
+    nr.appendChild(el('span', 'fig', id));
+    foot.appendChild(nr);
+    if (c.redeemed > 0) foot.appendChild(el('span', null, c.redeemed + ' ' + plural(c.redeemed, 'Prämie', 'Prämien') + ' geholt'));
+    foot.appendChild(el('span', 'fig', c.stamps + ' / ' + g));
     card.appendChild(foot);
     return card;
   }
@@ -378,12 +383,18 @@
 
   // ---------- Rendern ----------
   function applyInk() {
-    document.documentElement.style.setProperty('--stamp', (INKS[S.biz.ink] || INKS.blau).hex);
+    document.documentElement.style.setProperty('--stamp', inkVar(S.biz.ink));
   }
 
   function renderHero() {
     var id = S.me, c = S.cards[id];
     mountCard('hero', id, { status: true, qr: false });
+    mountCard('flow', id, { status: false, qr: true });
+    mountCard('flowm', id, { status: false, qr: true });
+    mountCard('setup', id, { status: true, qr: false });
+    Array.prototype.forEach.call($('templates').children, function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.key === S.biz.type));
+    });
     var av = available(c), full = c.stamps >= goal();
     $('heroGive').disabled = full;
     var rb = $('heroRedeem');
@@ -431,10 +442,10 @@
       list.textContent = '';
       $('kRedeemGroup').hidden = !av.length;
       av.forEach(function (r) {
-        var b = el('button', 'btn ink big');
+        var b = el('button', 'btn btn--ink');
         b.type = 'button';
         b.appendChild(el('span', null, rewardText(r)));
-        b.appendChild(el('span', 'mono', 'einlösen'));
+        b.appendChild(el('span', null, 'einlösen'));
         b.addEventListener('click', function () {
           var res = redeem(id, r.id);
           kflash(res.msg, !res.ok);
@@ -498,7 +509,7 @@
     box.textContent = '';
     cardIds().forEach(function (id) {
       var c = S.cards[id];
-      var t = el('div', 'tile');
+      var t = el('div', 'tile stock');
       var q = el('div', 'qr');
       q.setAttribute('role', 'img');
       q.setAttribute('aria-label', 'QR-Code der Karte ' + id);
@@ -506,11 +517,11 @@
       t.appendChild(q);
       t.appendChild(el('b', null, id));
       t.appendChild(el('span', null, c.stamps + ' / ' + goal() + ' Stempel'));
-      var row = el('div', 'row');
-      var b = el('button', 'btn quiet small', 'Öffnen');
+      var row = el('div', 'actions');
+      var b = el('button', 'btn btn--card btn--s', 'Öffnen');
       b.type = 'button';
       b.addEventListener('click', function () { setTab('stempeln'); openCard(id); });
-      var a = el('a', 'btn quiet small', 'Gast');
+      var a = el('a', 'btn btn--card btn--s', 'Gast');
       a.href = '#karte-' + id;
       a.setAttribute('aria-label', 'Gast-Ansicht der Karte ' + id);
       row.appendChild(b);
@@ -578,7 +589,7 @@
       txt.setAttribute('aria-label', 'Prämie ' + (idx + 1) + ': Was gibt es?');
       txt.addEventListener('input', function () { r.text = txt.value; save(); renderAll(); });
 
-      var del = el('button', 'xbtn', '×');
+      var del = el('button', 'btn btn--card', '×');
       del.type = 'button';
       del.setAttribute('aria-label', 'Prämie ' + (idx + 1) + ' entfernen');
       del.disabled = S.biz.rewards.length <= 1;
@@ -600,27 +611,37 @@
     }
   }
 
+  function applyPreset(k) {
+    var p = PRESETS[k];
+    S.biz.type = k; S.biz.name = p.name; S.biz.earn = p.earn;
+    S.biz.rewards = makeRewards(p.rewards, S.biz.nextId);
+    S.biz.nextId += p.rewards.length;
+    cardIds().forEach(function (id) { S.cards[id].claimed = []; });
+    normalize(); save();
+    renderControls(); renderAll();
+  }
+
   function buildPickers() {
     Object.keys(PRESETS).forEach(function (k) {
-      var b = el('button', 'pick', PRESETS[k].label);
+      var b = el('button', null, PRESETS[k].label);
       b.type = 'button'; b.dataset.key = k;
       b.addEventListener('click', function () {
-        var p = PRESETS[k];
-        S.biz.type = k; S.biz.name = p.name; S.biz.earn = p.earn;
-        S.biz.rewards = makeRewards(p.rewards, S.biz.nextId);
-        S.biz.nextId += p.rewards.length;
-        cardIds().forEach(function (id) { S.cards[id].claimed = []; });
-        normalize(); save();
-        renderControls(); renderAll();
-        sflash(k === 'eigen' ? 'Leere Karte. Trag Name, Regel und Prämien ein.' : 'Vorlage „' + p.label + '“ übernommen.');
+        applyPreset(k);
+        sflash(k === 'eigen' ? 'Leere Karte. Trag Name, Regel und Prämien ein.' : 'Vorlage „' + PRESETS[k].label + '“ übernommen.');
         if (k === 'eigen') $('fName').focus();
       });
       $('presets').appendChild(b);
     });
+    ['restaurant', 'cafe', 'baeckerei', 'friseur'].forEach(function (k) {
+      var b = el('button', null, PRESETS[k].label);
+      b.type = 'button'; b.dataset.key = k;
+      b.addEventListener('click', function () { applyPreset(k); });
+      $('templates').appendChild(b);
+    });
     Object.keys(INKS).forEach(function (k) {
       var b = el('button', 'swatch');
       b.type = 'button'; b.dataset.key = k;
-      b.style.background = INKS[k].hex;
+      b.style.background = inkVar(k);
       b.setAttribute('aria-label', 'Stempelfarbe ' + INKS[k].label);
       b.title = INKS[k].label;
       b.addEventListener('click', function () { S.biz.ink = k; save(); renderControls(); renderAll(); });
@@ -941,7 +962,7 @@
 
   // ---------- Ansichten ----------
   var VIEWS = ['start', 'preise', 'kasse', 'karte', 'impressum', 'datenschutz'];
-  var TITLES = { start: 'Stempelei', preise: 'Preise · Stempelei', kasse: 'Kasse · Stempelei', karte: 'Deine Karte · Stempelei', impressum: 'Impressum · Stempelei', datenschutz: 'Datenschutz · Stempelei' };
+  var TITLES = { start: 'Stempelei', preise: 'Stempelei Preise', kasse: 'Stempelei Kasse', karte: 'Stempelei Deine Karte', impressum: 'Stempelei Impressum', datenschutz: 'Stempelei Datenschutz' };
   var current = null;
 
   function route() {
@@ -961,18 +982,28 @@
     current = key;
   }
 
-  // Monatskarte auf der Preisseite
-  function buildMonth() {
-    var g = $('monthSlots'), h = '';
-    g.style.gridTemplateColumns = 'repeat(6, minmax(0, 1fr))';
-    for (var i = 0; i < 30; i++) h += '<li class="slot on">' + stampSVG(i, false) + '</li>';
-    g.innerHTML = h;
+  // Ablauf auf der Startseite: das Bild rechts folgt der Stufe, die gerade in der Mitte steht.
+  // Auf schmalen Bildschirmen steht jedes Objekt direkt unter seiner Stufe.
+  function buildFlow() {
+    var visual = $('flowVisual');
+    var first = document.querySelector('[data-inline="1"]');
+    if (first) first.appendChild(el('div')).setAttribute('data-card', 'flowm');
+    ['2', '3'].forEach(function (n) {
+      var src = visual.querySelector('[data-obj="' + n + '"] .slip');
+      var dst = document.querySelector('[data-inline="' + n + '"]');
+      if (src && dst) dst.appendChild(src.cloneNode(true));
+    });
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) visual.dataset.active = e.target.dataset.stage; });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    Array.prototype.forEach.call(document.querySelectorAll('.flow-steps > li'), function (li) { io.observe(li); });
   }
 
   // ---------- Start ----------
   normalize();
   buildPickers();
-  buildMonth();
+  buildFlow();
   bind();
   renderControls();
   route();
