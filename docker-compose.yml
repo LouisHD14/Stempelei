@@ -27,6 +27,18 @@ services:
       SMTP_URL: ${SMTP_URL:-}
       MAIL_FROM: ${MAIL_FROM:-}
       TRUST_PROXY: ${TRUST_PROXY:-false}
+      # Apple und Google Wallet, optional. Schlüsseldateien liegen in ./secrets (nicht im Repo).
+      APPLE_PASS_TYPE_ID: ${APPLE_PASS_TYPE_ID:-}
+      APPLE_TEAM_ID: ${APPLE_TEAM_ID:-}
+      APPLE_PASS_CERT: ${APPLE_PASS_CERT:-}
+      APPLE_PASS_KEY: ${APPLE_PASS_KEY:-}
+      APPLE_PASS_KEY_PASSPHRASE: ${APPLE_PASS_KEY_PASSPHRASE:-}
+      APPLE_WWDR_CERT: ${APPLE_WWDR_CERT:-}
+      WALLET_SECRET: ${WALLET_SECRET:-}
+      GOOGLE_WALLET_ISSUER_ID: ${GOOGLE_WALLET_ISSUER_ID:-}
+      GOOGLE_WALLET_KEY_FILE: ${GOOGLE_WALLET_KEY_FILE:-}
+    volumes:
+      - ./secrets:/run/secrets:ro
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

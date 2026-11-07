@@ -12,6 +12,20 @@ export interface Config {
   smtpUrl: string | null;
   /** Absender, z. B. "Stempelei <hallo@deine-domain.de>" */
   mailFrom: string;
+  /** Apple und Google Wallet. Jeweils null, solange die Zugangsdaten fehlen: Dann gibt es keinen Knopf. */
+  wallet: {
+    apple: {
+      passTypeId: string;
+      teamId: string;
+      certFile: string;
+      keyFile: string;
+      keyPassphrase?: string;
+      wwdrFile: string;
+      secret: string;
+      apnsHost: string;
+    } | null;
+    google: { issuerId: string; keyFile: string } | null;
+  };
 }
 
 export class ConfigError extends Error {
@@ -85,6 +99,46 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     problems.push('MAIL_FROM fehlt, z. B. "Stempelei <hallo@deine-domain.de>".');
   }
 
+  // Apple Wallet: alles oder nichts
+  const appleVars = [
+    'APPLE_PASS_TYPE_ID',
+    'APPLE_TEAM_ID',
+    'APPLE_PASS_CERT',
+    'APPLE_PASS_KEY',
+    'APPLE_WWDR_CERT',
+    'WALLET_SECRET',
+  ];
+  const appleSet = appleVars.filter((k) => env[k]);
+  let apple: Config['wallet']['apple'] = null;
+  if (appleSet.length && appleSet.length < appleVars.length) {
+    problems.push(`Für Apple Wallet fehlen: ${appleVars.filter((k) => !env[k]).join(', ')}.`);
+  } else if (appleSet.length) {
+    if ((env.WALLET_SECRET ?? '').length < 32) problems.push('WALLET_SECRET braucht mindestens 32 Zeichen.');
+    if (!/^pass\.[A-Za-z0-9.-]+$/.test(env.APPLE_PASS_TYPE_ID ?? '')) {
+      problems.push('APPLE_PASS_TYPE_ID muss mit pass. beginnen, z. B. pass.de.deine-domain.stempelkarte.');
+    }
+    if (publicUrl.protocol !== 'https:') problems.push('Apple Wallet braucht eine PUBLIC_URL mit https://.');
+    apple = {
+      passTypeId: env.APPLE_PASS_TYPE_ID as string,
+      teamId: env.APPLE_TEAM_ID as string,
+      certFile: env.APPLE_PASS_CERT as string,
+      keyFile: env.APPLE_PASS_KEY as string,
+      ...(env.APPLE_PASS_KEY_PASSPHRASE ? { keyPassphrase: env.APPLE_PASS_KEY_PASSPHRASE } : {}),
+      wwdrFile: env.APPLE_WWDR_CERT as string,
+      secret: env.WALLET_SECRET as string,
+      apnsHost: env.APNS_HOST || 'api.push.apple.com',
+    };
+  }
+  // Google Wallet: Issuer-ID und Schlüsseldatei des Dienstkontos
+  let google: Config['wallet']['google'] = null;
+  if (Boolean(env.GOOGLE_WALLET_ISSUER_ID) !== Boolean(env.GOOGLE_WALLET_KEY_FILE)) {
+    problems.push('Für Google Wallet braucht es GOOGLE_WALLET_ISSUER_ID und GOOGLE_WALLET_KEY_FILE.');
+  } else if (env.GOOGLE_WALLET_ISSUER_ID) {
+    if (!/^[0-9]+$/.test(env.GOOGLE_WALLET_ISSUER_ID))
+      problems.push('GOOGLE_WALLET_ISSUER_ID besteht nur aus Ziffern.');
+    google = { issuerId: env.GOOGLE_WALLET_ISSUER_ID, keyFile: env.GOOGLE_WALLET_KEY_FILE as string };
+  }
+
   if (problems.length) throw new ConfigError(problems);
 
   return {
@@ -97,5 +151,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     logLevel,
     smtpUrl,
     mailFrom,
+    wallet: { apple, google },
   };
 }

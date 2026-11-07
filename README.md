@@ -95,6 +95,34 @@ Der deutsche Text steht direkt im HTML. Elemente mit `data-i18n="schlüssel"` be
 
 Neue Seite oder neuer Text: deutschen Text ins HTML, Schlüssel per `data-i18n` dran, englischen Text unter demselben Schlüssel in `EN` eintragen.
 
+## Apple und Google Wallet
+
+Gäste können ihre Karte in Apple Wallet oder Google Wallet legen. Der Pass zeigt denselben QR-Code wie die Gast-Ansicht, die Kasse scannt ihn wie bisher. Nach jedem Stempel aktualisiert sich der Pass von selbst: Apple bekommt einen Push, Google ein PATCH.
+
+Ohne Zugangsdaten ist Wallet aus und die Gast-Ansicht zeigt keine Knöpfe. Einrichten:
+
+**Apple Wallet** (braucht das Apple Developer Program, 99 $ im Jahr)
+1. Im Apple-Entwicklerportal unter Identifiers eine Pass Type ID anlegen, z. B. `pass.de.deine-domain.stempelkarte`.
+2. Dazu ein Pass-Type-ID-Zertifikat erstellen, als `.p12` exportieren und in PEM umwandeln:
+   `openssl pkcs12 -in pass.p12 -clcerts -nokeys -out secrets/pass-cert.pem` und
+   `openssl pkcs12 -in pass.p12 -nocerts -out secrets/pass-key.pem`
+3. Das Apple-WWDR-Zwischenzertifikat (G4) laden und als `secrets/wwdr.pem` ablegen.
+4. `APPLE_*` und `WALLET_SECRET` in `.env` eintragen. Dasselbe Zertifikat dient auch für die Pushes an APNs.
+5. Die Updates laufen über `<PUBLIC_URL>/wallet/apple`. Das iPhone muss diese Adresse erreichen, also HTTPS und öffentlich (im Tailnet nur für Geräte mit Tailscale).
+
+**Google Wallet** (kostenlos)
+1. In der Google Pay & Wallet Console ein Issuer-Konto anlegen, Issuer-ID notieren.
+2. In der Google Cloud ein Projekt mit der Google Wallet API anlegen, ein Dienstkonto erstellen, JSON-Schlüssel als `secrets/google-wallet.json` ablegen und das Dienstkonto in der Wallet Console als Nutzer hinzufügen.
+3. `GOOGLE_WALLET_ISSUER_ID` und `GOOGLE_WALLET_KEY_FILE` in `.env` eintragen.
+4. Neue Konten sind im Demo-Modus: Nur Testkonten können Karten speichern („[TEST ONLY]“). Für alle Gäste in der Console „Publishing access“ beantragen.
+5. Google lädt das Logo von `<PUBLIC_URL>/assets/wallet/logo-google.png`, die Adresse muss öffentlich sein.
+
+**Offizielle Knöpfe:** Apple und Google erlauben nur ihre eigenen Grafiken, unverändert. Sie liegen nicht im Repo, sondern werden einmal geladen und abgelegt:
+- `public/assets/wallet/badges/de/apple.svg` und `.../en/apple.svg` von https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/
+- `public/assets/wallet/badges/de/google.svg` und `.../en/google.svg` von https://developers.google.com/wallet/retail/loyalty-cards/resources/brand-guidelines
+
+Ein Knopf erscheint nur, wenn Zugangsdaten und Grafiken da sind. Die Bilder im Pass (Stern-Logo) erzeugt `node tools/wallet-images.mjs`.
+
 ## Gestaltung
 
 Die Website folgt dem Design-Skill [Hallmark](https://github.com/Nutlope/hallmark), Theme Coral: warmes Papier, Bedienelemente als Prägekarten, Koralle nur für eingelöste Prämien. Die Entscheidungen stehen als Kommentar oben in `public/assets/css/style.css`, das Log in `.hallmark/log.json`. Farben, Abstände und Schriftgrößen kommen ausschließlich aus `tokens.css`.

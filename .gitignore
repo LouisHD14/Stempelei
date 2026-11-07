@@ -1,6 +1,10 @@
 node_modules/
 build/
 .env
+# Schlüssel für Apple und Google Wallet
+secrets/
+# Offizielle Wallet-Knöpfe: von Apple und Google laden, nicht ins Repo (Lizenz)
+public/assets/wallet/badges/
 # Hallmark: nur das Log bleibt im Repo
 .hallmark/*
 !.hallmark/log.json
