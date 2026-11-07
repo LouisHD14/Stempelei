@@ -84,6 +84,9 @@ test/                  Tests mit node:test
 | `/register`, `/login` | Konto anlegen, anmelden |
 | `/verify`, `/forgot-password`, `/reset-password` | Links aus den E-Mails |
 | `/dashboard` | Übersicht mit Checkliste der nächsten Schritte |
+| `/dashboard/card`, `/dashboard/till`, `/dashboard/stats` | Karte gestalten, Team und Geräte, Statistik |
+| `/till` | Kasse für das Team |
+| `/c/<token>` | Karte des Gasts |
 | `/imprint`, `/privacy` | Impressum und Datenschutz, nur auf Deutsch |
 
 ## Sprachen

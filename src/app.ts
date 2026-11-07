@@ -12,6 +12,7 @@ import type { Mailer } from './mail.js';
 import { authRoutes } from './routes/auth.js';
 import { programRoutes } from './routes/programs.js';
 import { publicRoutes } from './routes/public.js';
+import { statsRoutes } from './routes/stats.js';
 import { teamRoutes } from './routes/team.js';
 import { tillRoutes } from './routes/till.js';
 
@@ -32,6 +33,7 @@ const DB_PING_TIMEOUT_MS = 2000;
 const PAGES: Record<string, string> = {
   '/dashboard/card': 'dashboard-card.html',
   '/dashboard/till': 'dashboard-till.html',
+  '/dashboard/stats': 'dashboard-stats.html',
 };
 
 const VALIDATION_MESSAGES: Record<string, string> = {
@@ -161,6 +163,7 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
     await publicRoutes(app, { config, db });
     await teamRoutes(app, { db });
     await tillRoutes(app, { config, db });
+    await statsRoutes(app, { db });
   }
 
   // QR-Scanner für die Kasse, direkt aus dem npm-Paket, weil die CSP keine fremden Skripte erlaubt
