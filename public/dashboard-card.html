@@ -17,6 +17,7 @@
     <nav class="nav" aria-label="Konto-Menü" data-i18n-attr="aria-label:common.aria-label-konto-menue">
       <a href="/dashboard" data-nav="/dashboard" data-i18n="common.uebersicht">Übersicht</a>
       <a href="/dashboard/card" data-nav="/dashboard/card" data-i18n="common.stempelkarte">Stempelkarte</a>
+      <a href="/dashboard/till" data-nav="/dashboard/till" data-i18n="common.kasse">Kasse</a>
     </nav>
     <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
     <button class="btn btn--card btn--s" id="logout" type="button" data-i18n="common.abmelden">Abmelden</button>
@@ -70,7 +71,7 @@
         </fieldset>
         <div class="actions">
           <button class="btn btn--ink" type="submit" id="save" data-i18n="cardedit.karte-speichern">Karte speichern</button>
-          <a class="btn btn--card" id="nextStep" href="/dashboard" hidden data-i18n="cardedit.weiter-kasse-einrichten">Weiter: Kasse einrichten</a>
+          <a class="btn btn--card" id="nextStep" href="/dashboard/till" hidden data-i18n="cardedit.weiter-kasse-einrichten">Weiter: Kasse einrichten</a>
         </div>
         <p class="flash" id="flash" role="status" aria-live="polite"></p>
       </form>

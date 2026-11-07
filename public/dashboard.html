@@ -17,6 +17,7 @@
     <nav class="nav" aria-label="Konto-Menü" data-i18n-attr="aria-label:common.aria-label-konto-menue">
       <a href="/dashboard" data-nav="/dashboard" data-i18n="common.uebersicht">Übersicht</a>
       <a href="/dashboard/card" data-nav="/dashboard/card" data-i18n="common.stempelkarte">Stempelkarte</a>
+      <a href="/dashboard/till" data-nav="/dashboard/till" data-i18n="common.kasse">Kasse</a>
     </nav>
     <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
     <button class="btn btn--card btn--s" id="logout" type="button" data-i18n="common.abmelden">Abmelden</button>
@@ -58,7 +59,7 @@
             <h3 data-i18n="dash.kasse-einrichten">Kasse einrichten</h3>
             <p data-i18n="dash.handy-oder-tablet-freischalten-und-deine">Handy oder Tablet freischalten und deinem Team PINs geben.</p>
           </div>
-          <div class="check-action"><span class="soon" data-i18n="dash.bald-verfuegbar">Bald verfügbar</span><span class="check-state" data-state></span></div>
+          <div class="check-action"><a class="btn btn--ink btn--s" href="/dashboard/till" data-i18n="dash.jetzt-einrichten">Jetzt einrichten</a><span class="check-state" data-state></span></div>
         </li>
         <li class="check" id="step-first">
           <span class="check-mark" aria-hidden="true">4</span>
@@ -66,7 +67,7 @@
             <h3 data-i18n="dash.erste-karte-ausgeben">Erste Karte ausgeben</h3>
             <p data-i18n="dash.dein-gast-scannt-den-qr-code-an-der-kass">Dein Gast scannt den QR-Code an der Kasse und hat seine Karte.</p>
           </div>
-          <div class="check-action"><span class="soon" data-i18n="dash.bald-verfuegbar">Bald verfügbar</span><span class="check-state" data-state></span></div>
+          <div class="check-action"><a class="btn btn--ink btn--s" href="/till" data-i18n="dash.kasse-oeffnen">Kasse öffnen</a><span class="check-state" data-state></span></div>
         </li>
         <li class="check" id="step-plan">
           <span class="check-mark" aria-hidden="true">5</span>

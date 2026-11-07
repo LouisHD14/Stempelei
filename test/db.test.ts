@@ -37,10 +37,12 @@ describe('Datenbank', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt
         'email_tokens',
         'events',
         'locations',
+        'pairing_codes',
         'programs',
         'rewards',
         'sessions',
         'staff',
+        'till_sessions',
         'users',
       ],
     );

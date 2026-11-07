@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="till.title">Kasse · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="till">
+<header class="bar">
+  <div class="container">
+    <span class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      <span data-i18n="till.brand">Stempelei · Kasse</span>
+    </span>
+    <span class="till-biz" id="bizName"></span>
+    <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
+    <button class="btn btn--card btn--s" id="lock" type="button" hidden data-i18n="till.sperren">Sperren</button>
+  </div>
+</header>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="4" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.45 1.08" result="mask"/>
+    <feComposite in="SourceGraphic" in2="mask" operator="in"/>
+  </filter>
+</svg>
+<main class="app dash dash--wide till-page">
+  <div class="container kasse">
+    <p class="flash" id="flash" role="status" aria-live="polite"></p>
+    <p class="till-note" id="tillLocked" hidden data-i18n="till.kasse-gesperrt-testphase-vorbei">Die Kasse ist gesperrt: Die Testphase ist vorbei. Der Inhaber muss im Dashboard ein Paket wählen, dann geht es weiter.</p>
+
+    <p class="muted" id="vLoading" data-i18n="till.einen-moment">Einen Moment …</p>
+
+    <!-- 1. Gerät noch nicht freigeschaltet -->
+    <section class="stock till-box" id="vPair" hidden aria-labelledby="h-pair">
+      <h1 id="h-pair" tabindex="-1" data-i18n="till.kasse-einrichten">Kasse einrichten</h1>
+      <p class="muted" data-i18n="till.geraet-noch-nicht-freigeschaltet">Dieses Gerät ist noch nicht als Kasse freigeschaltet. Bitte den Inhaber um einen Kopplungscode unter Dashboard → Kasse.</p>
+      <form id="pairForm" novalidate>
+        <div class="field">
+          <label for="pairCode" data-i18n="till.kopplungscode">Kopplungscode (8 Ziffern)</label>
+          <input id="pairCode" name="code" required inputmode="numeric" pattern="[0-9]{8}" maxlength="8" autocomplete="one-time-code" class="till-digits">
+        </div>
+        <div class="field">
+          <label for="pairName" data-i18n="till.name-des-geraets">Name des Geräts</label>
+          <input id="pairName" name="name" required maxlength="40" autocomplete="off" placeholder="z. B. Tresen" data-i18n-attr="placeholder:till.placeholder-z-b-tresen">
+        </div>
+        <div class="actions">
+          <button class="btn btn--ink" type="submit" id="pairBtn" data-i18n="till.geraet-freischalten">Gerät freischalten</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 2. Freigeschaltet, aber niemand angemeldet -->
+    <section class="stock till-box" id="vPin" hidden aria-labelledby="h-pin">
+      <h1 id="h-pin" tabindex="-1" data-i18n="till.pin-eingeben">PIN eingeben</h1>
+      <p class="muted" data-i18n="till.gib-deine-persoenliche-pin-ein">Gib deine persönliche PIN ein (4 bis 6 Ziffern).</p>
+      <form id="pinForm" class="pin-form" novalidate>
+        <label for="pin" class="visually-hidden" data-i18n="till.pin">PIN</label>
+        <!-- inputmode none: keine Bildschirmtastatur über dem Ziffernblock, eine echte Tastatur tippt trotzdem -->
+        <input id="pin" name="pin" type="password" inputmode="none" autocomplete="off" maxlength="6" pattern="[0-9]{4,6}" class="pin-input">
+        <div class="pinpad" role="group" aria-label="Ziffernblock" data-i18n-attr="aria-label:till.aria-ziffernblock">
+          <button class="btn btn--card" type="button" data-digit="1">1</button>
+          <button class="btn btn--card" type="button" data-digit="2">2</button>
+          <button class="btn btn--card" type="button" data-digit="3">3</button>
+          <button class="btn btn--card" type="button" data-digit="4">4</button>
+          <button class="btn btn--card" type="button" data-digit="5">5</button>
+          <button class="btn btn--card" type="button" data-digit="6">6</button>
+          <button class="btn btn--card" type="button" data-digit="7">7</button>
+          <button class="btn btn--card" type="button" data-digit="8">8</button>
+          <button class="btn btn--card" type="button" data-digit="9">9</button>
+          <button class="btn btn--card" type="button" id="pinDel" aria-label="Letzte Ziffer löschen" data-i18n-attr="aria-label:till.aria-letzte-ziffer-loeschen">⌫</button>
+          <button class="btn btn--card" type="button" data-digit="0">0</button>
+          <button class="btn btn--ink" type="submit" id="pinOk" data-i18n="till.ok">OK</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 3. Kasse -->
+    <section id="vMain" hidden aria-labelledby="h-main">
+      <div class="kasse-head">
+        <div>
+          <h1 id="h-main" tabindex="-1" data-i18n="till.kasse">Kasse</h1>
+          <p class="muted" id="staffLine"></p>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Kasse" data-i18n-attr="aria-label:till.kasse">
+        <button class="tab" type="button" role="tab" id="tabCard" aria-controls="pCard" aria-selected="true" data-i18n="till.karte">Karte</button>
+        <button class="tab" type="button" role="tab" id="tabLog" aria-controls="pLog" aria-selected="false" tabindex="-1" data-i18n="till.heute">Heute</button>
+      </div>
+
+      <div class="k-grid till-panel" id="pCard" role="tabpanel" aria-labelledby="tabCard">
+        <div class="pane">
+          <h2 data-i18n="till.karte-finden">Karte finden</h2>
+          <div class="group">
+            <div class="actions">
+              <button class="btn btn--ink" type="button" id="scanBtn" data-i18n="till.scannen">Scannen</button>
+              <button class="btn btn--card" type="button" id="stopBtn" hidden data-i18n="till.stopp">Stopp</button>
+            </div>
+            <p class="help" id="camNote" hidden data-i18n="till.kamera-braucht-https">Die Kamera geht hier nicht: Sie braucht eine sichere Verbindung (HTTPS) und einen Browser mit Kamera-Zugriff. Gib stattdessen den Kurzcode ein.</p>
+            <div class="cam" id="cam" hidden>
+              <video id="video" playsinline muted aria-label="Kamerabild" aria-describedby="camHelp" data-i18n-attr="aria-label:till.aria-kamerabild"></video>
+              <div class="frame" aria-hidden="true"></div>
+            </div>
+            <p class="help" id="camHelp" hidden data-i18n="till.halte-den-qr-code-in-den-rahmen">Halte den QR-Code der Gast-Karte in den Rahmen. Die Karte öffnet sich von selbst.</p>
+            <canvas id="canvas" hidden></canvas>
+          </div>
+          <p class="or" data-i18n="till.oder">oder</p>
+          <form id="codeForm" class="group" novalidate>
+            <label class="label" for="code" data-i18n="till.kurzcode-der-karte">Kurzcode der Karte</label>
+            <div class="numform">
+              <input id="code" name="code" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7X2QP" class="till-digits">
+              <button class="btn btn--card" type="submit" data-i18n="till.oeffnen">Öffnen</button>
+            </div>
+          </form>
+          <p class="or" data-i18n="till.oder">oder</p>
+          <div class="group">
+            <div class="field" id="programField" hidden>
+              <label for="program" data-i18n="till.stempelkarte">Stempelkarte</label>
+              <select id="program"></select>
+            </div>
+            <div class="actions">
+              <button class="btn btn--card" type="button" id="newCardBtn" data-i18n="till.neue-karte-ausgeben">Neue Karte ausgeben</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="empty-card" id="emptyCard">
+            <p data-i18n="till.scanne-eine-karte">Scanne die Karte des Gastes oder gib ihren Kurzcode ein. Neue Gäste bekommen eine neue Karte.</p>
+          </div>
+
+          <section class="qrbox stock" id="issued" hidden aria-labelledby="h-issued">
+            <img id="issuedQr" width="220" height="220" alt="QR-Code der neuen Karte" data-i18n-attr="alt:till.alt-qr-code-der-neuen-karte">
+            <div>
+              <h2 class="qrbox-title" id="h-issued" tabindex="-1" data-i18n="till.gast-scannt-diesen-code">Der Gast scannt diesen Code mit dem Handy</h2>
+              <p class="muted" data-i18n="till.so-hat-er-die-karte">So hat er die Karte immer dabei. Kurzcode:</p>
+              <p class="code" id="issuedCode"></p>
+              <p class="till-link"><a id="issuedLink" href="#" target="_blank" rel="noopener"></a></p>
+            </div>
+          </section>
+
+          <section class="group" id="cardBox" hidden aria-labelledby="h-card">
+            <div class="k-card-head">
+              <h2 id="h-card" tabindex="-1"></h2>
+              <button class="btn btn--card btn--s" type="button" id="closeBtn" data-i18n="till.schliessen">Schließen</button>
+            </div>
+            <div id="cardView"></div>
+            <div class="group">
+              <span class="label" id="amountLabel" data-i18n="till.anzahl-stempel">Anzahl Stempel</span>
+              <div class="actions">
+                <div class="stepper" role="group" aria-labelledby="amountLabel">
+                  <button class="btn btn--card" type="button" id="minus" aria-label="Einen Stempel weniger" data-i18n-attr="aria-label:till.aria-einen-weniger">−</button>
+                  <input id="amount" type="number" inputmode="numeric" min="1" max="20" value="1" aria-labelledby="amountLabel">
+                  <button class="btn btn--card" type="button" id="plus" aria-label="Einen Stempel mehr" data-i18n-attr="aria-label:till.aria-einen-mehr">+</button>
+                </div>
+                <button class="btn btn--ink" type="button" id="stampBtn"></button>
+              </div>
+            </div>
+            <div class="redeem-list" id="redeemList"></div>
+            <div class="actions">
+              <button class="btn btn--card btn--s" type="button" id="undoBtn" hidden data-i18n="till.rueckgaengig">Rückgängig</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="pane till-panel" id="pLog" role="tabpanel" aria-labelledby="tabLog" hidden>
+        <div class="k-card-head">
+          <h2 data-i18n="till.heute-im-betrieb">Heute im Betrieb</h2>
+          <button class="btn btn--card btn--s" type="button" id="logRefresh" data-i18n="till.aktualisieren">Aktualisieren</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="statIssued">0</b><span data-i18n="till.karten-ausgegeben">Karten ausgegeben</span></div>
+          <div class="stat"><b id="statStamps">0</b><span data-i18n="till.stempel-vergeben">Stempel vergeben</span></div>
+          <div class="stat"><b id="statRedeemed">0</b><span data-i18n="till.praemien-eingeloest">Prämien eingelöst</span></div>
+        </div>
+        <ol class="log" id="log"></ol>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span class="brandline">Stempelei.</span> <span data-i18n="common.digitale-stempelkarten-fuer-restaurants">Digitale Stempelkarten für Restaurants, Cafés und Läden.</span> <a href="/imprint" data-i18n="common.impressum">Impressum</a> · <a href="/privacy" data-i18n="common.datenschutz">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/i18n.js"></script>
+<script src="/assets/js/card.js"></script>
+<script src="/assets/vendor/jsQR.js"></script>
+<script src="/assets/js/till.js"></script>
+</body>
+</html>

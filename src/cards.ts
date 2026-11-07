@@ -12,7 +12,7 @@ export function cardUrl(publicUrl: URL, token: string): string {
   return new URL(`/c/${token}`, publicUrl).href;
 }
 
-function isUniqueViolation(err: unknown): boolean {
+export function isUniqueViolation(err: unknown): boolean {
   const e = err as { code?: string; cause?: { code?: string } } | null;
   return e?.code === '23505' || e?.cause?.code === '23505';
 }

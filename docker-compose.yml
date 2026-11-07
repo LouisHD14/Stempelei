@@ -26,7 +26,7 @@ services:
       PUBLIC_URL: ${PUBLIC_URL:-https://localhost}
       SMTP_URL: ${SMTP_URL:-}
       MAIL_FROM: ${MAIL_FROM:-}
-      TRUST_PROXY: "false"
+      TRUST_PROXY: ${TRUST_PROXY:-false}
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

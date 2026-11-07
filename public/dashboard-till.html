@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="common.kasse-einrichten-stempelei">Kasse einrichten · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="dashboard-till">
+<header class="bar">
+  <div class="container">
+    <a class="brand" href="/dashboard" aria-label="Stempelei, zur Übersicht" data-i18n-attr="aria-label:common.aria-label-stempelei-zur-uebersicht">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      Stempelei
+    </a>
+    <nav class="nav" aria-label="Konto-Menü" data-i18n-attr="aria-label:common.aria-label-konto-menue">
+      <a href="/dashboard" data-nav="/dashboard" data-i18n="common.uebersicht">Übersicht</a>
+      <a href="/dashboard/card" data-nav="/dashboard/card" data-i18n="common.stempelkarte">Stempelkarte</a>
+      <a href="/dashboard/till" data-nav="/dashboard/till" data-i18n="common.kasse">Kasse</a>
+    </nav>
+    <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
+    <button class="btn btn--card btn--s" id="logout" type="button" data-i18n="common.abmelden">Abmelden</button>
+  </div>
+</header>
+
+<main class="app dash tillset">
+  <div class="container">
+    <section class="dash-head" aria-labelledby="h-till">
+      <a class="back" href="/dashboard" data-i18n="tillset.zur-uebersicht">← Zur Übersicht</a>
+      <h1 id="h-till" data-i18n="tillset.kasse-einrichten">Kasse einrichten</h1>
+      <p class="lead" data-i18n="tillset.lead">In drei Schritten zur Kasse: Leg dein Team mit PINs an, schalte ein Gerät frei und öffne darauf die Kasse.</p>
+      <p class="flash" id="flash" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="stock tillset-step" aria-labelledby="h-team" id="team" hidden>
+      <div class="tillset-head">
+        <h2 id="h-team" data-i18n="tillset.team">1. Team</h2>
+        <p class="muted" id="staffLimit"></p>
+      </div>
+      <p class="help" data-i18n="tillset.team-help">Jede Person bekommt eine eigene PIN. Damit meldet sie sich an der Kasse an, und im Kassenbuch steht, wer gestempelt hat.</p>
+      <ul class="tillset-list" id="staffList" aria-labelledby="h-team"></ul>
+      <form class="tillset-add" id="addStaff" novalidate>
+        <fieldset id="addStaffSet">
+          <legend class="label" data-i18n="tillset.person-hinzufuegen">Person hinzufügen</legend>
+          <div class="tillset-fields">
+            <div class="field">
+              <label for="staffName" data-i18n="tillset.name">Name</label>
+              <input id="staffName" name="name" required maxlength="40" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="staffPin" data-i18n="tillset.pin">PIN (4 bis 6 Ziffern)</label>
+              <input id="staffPin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+            </div>
+            <button class="btn btn--ink" type="submit" id="addStaffBtn" data-i18n="tillset.hinzufuegen">Hinzufügen</button>
+          </div>
+        </fieldset>
+      </form>
+      <p class="flash" id="teamFlash" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="stock tillset-step" aria-labelledby="h-devices" id="devices" hidden>
+      <div class="tillset-head">
+        <h2 id="h-devices" data-i18n="tillset.geraete">2. Geräte</h2>
+      </div>
+      <p class="help" data-i18n="tillset.geraete-help">Die Kasse läuft nur auf Geräten, die du hier freischaltest, zum Beispiel einem Tablet am Tresen. Ein verlorenes Gerät sperrst du mit einem Klick.</p>
+      <ul class="tillset-list" id="deviceList" aria-labelledby="h-devices"></ul>
+      <div class="actions">
+        <button class="btn btn--ink" type="button" id="pairBtn" data-i18n="tillset.geraet-freischalten">Gerät freischalten</button>
+      </div>
+      <div class="tillset-pair desk" id="pairBox" hidden>
+        <p class="label" id="pairLabel" data-i18n="tillset.freischalt-code">Freischalt-Code</p>
+        <p class="tillset-code fig" id="pairCode" tabindex="-1" aria-labelledby="pairLabel pairCode"></p>
+        <p class="muted" id="pairTimer" role="timer" aria-live="off"></p>
+        <p id="pairHow"></p>
+        <div class="actions">
+          <a class="btn btn--card btn--s" id="useHere" href="/till" data-i18n="tillset.dieses-geraet-als-kasse-nutzen">Dieses Gerät als Kasse nutzen</a>
+        </div>
+      </div>
+      <p class="flash" id="deviceFlash" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="stock tillset-step" aria-labelledby="h-open" id="open" hidden>
+      <div class="tillset-head">
+        <h2 id="h-open" data-i18n="tillset.kasse-oeffnen">3. Kasse öffnen</h2>
+      </div>
+      <p class="help" data-i18n="tillset.kasse-oeffnen-help">Auf einem freigeschalteten Gerät meldet sich dein Team mit der PIN an und stempelt los.</p>
+      <div class="actions">
+        <a class="btn btn--ink" href="/till" data-i18n="tillset.kasse-oeffnen-link">Kasse öffnen</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span class="brandline">Stempelei.</span> <span data-i18n="common.digitale-stempelkarten-fuer-restaurants">Digitale Stempelkarten für Restaurants, Cafés und Läden.</span> <a href="/imprint" data-i18n="common.impressum">Impressum</a> · <a href="/privacy" data-i18n="common.datenschutz">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/i18n.js"></script>
+<script src="/assets/js/account.js"></script>
+<script src="/assets/js/dashboard-till.js"></script>
+</body>
+</html>
