@@ -475,7 +475,8 @@ td.fig { white-space: nowrap; }
 .till-page .cam video { display: block; }
 @media (max-width: 40rem) {
   .till-box { padding: var(--space-lg); }
-  .till-page .brand svg { display: none; }
+  /* Platz für Sprache, Verwaltung und Sperren: auf dem Handy steht nur der Name des Betriebs */
+  .till-page .brand { display: none; }
   .till-page #stampBtn, .till-page #scanBtn, .till-page #stopBtn, .till-page #newCardBtn { flex: 1 1 100%; }
   .till-page .stepper { flex: 1 1 100%; grid-template-columns: 56px minmax(0, 1fr) 56px; }
 }
