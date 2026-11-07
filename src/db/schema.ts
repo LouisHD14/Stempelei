@@ -239,3 +239,37 @@ export const events = pgTable(
       .where(sql`${t.idempotencyKey} is not null`),
   ],
 );
+
+/**
+ * Einmal-Codes zum Freischalten eines Kassengeräts (8 Ziffern, 10 Minuten gültig).
+ * Gespeichert wird nur der Hash. Beim Einlösen wird die Zeile gelöscht, so gilt jeder Code einmal.
+ */
+export const pairingCodes = pgTable(
+  'pairing_codes',
+  {
+    codeHash: text('code_hash').primaryKey(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    expiresAt: tz('expires_at').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('pairing_codes_business_idx').on(t.businessId)],
+);
+
+/** PIN-Sitzungen an der Kasse: ein Team-Mitglied auf einem Gerät, 15 Minuten ab der letzten Aktion. */
+export const tillSessions = pgTable(
+  'till_sessions',
+  {
+    idHash: text('id_hash').primaryKey(),
+    staffId: uuid('staff_id')
+      .notNull()
+      .references(() => staff.id, { onDelete: 'cascade' }),
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => devices.id, { onDelete: 'cascade' }),
+    expiresAt: tz('expires_at').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('till_sessions_staff_idx').on(t.staffId), index('till_sessions_device_idx').on(t.deviceId)],
+);

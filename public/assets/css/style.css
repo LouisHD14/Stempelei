@@ -71,6 +71,10 @@ input:disabled { opacity: 0.55; cursor: not-allowed; }
 .groove button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
 .groove button[aria-pressed="true"] { background-color: var(--color-cotton); background-image: var(--tex-cotton); color: var(--color-print); box-shadow: var(--edge-stock), var(--cast-stock); }
 
+/* hidden muss gewinnen, auch gegen Klassen mit display: flex/grid */
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
 /* ---------- Kopf: Banner über mitlaufender Leiste ---------- */
 .banner { background: var(--color-board); color: var(--color-board-type); font-size: var(--text-sm); }
 .banner .container { display: flex; min-height: 40px; align-items: center; }
@@ -416,4 +420,62 @@ td.fig { white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) {
   .stamp.new { animation: none; }
   .js .flow-visual .flow-obj { transform: none; transition: none; }
+}
+
+/* Kasse einrichten */
+.tillset-step { padding: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-md); }
+.tillset-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); flex-wrap: wrap; }
+.tillset-head h2 { font-size: var(--text-xl); }
+.tillset-head h2:focus { outline: none; }
+.tillset-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.tillset-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm) var(--space-md); flex-wrap: wrap; padding-block: var(--space-sm); border-top: 1px solid var(--color-rule); }
+.tillset-row:last-child { border-bottom: 1px solid var(--color-rule); }
+.tillset-name { display: flex; flex-direction: column; gap: var(--space-3xs); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.tillset-name small { font-weight: 400; font-size: var(--text-sm); }
+.tillset-empty { padding-block: var(--space-sm); font-size: var(--text-sm); }
+.tillset-inline { display: flex; align-items: flex-end; gap: var(--space-sm); flex-wrap: wrap; }
+.tillset-inline .field { width: 12rem; }
+.tillset-confirm { display: flex; align-items: center; gap: var(--space-sm) var(--space-md); flex-wrap: wrap; font-size: var(--text-sm); }
+.tillset-add fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-xs); }
+.tillset-add fieldset:disabled { opacity: 0.55; }
+.tillset-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; gap: var(--space-sm); align-items: end; }
+.tillset input[aria-invalid="true"] { border-color: var(--color-error); }
+.tillset-pair { padding: var(--space-lg); border-radius: var(--radius-card); display: flex; flex-direction: column; gap: var(--space-xs); align-items: flex-start; }
+.tillset-code { margin: 0; font-size: clamp(2.5rem, 9vw, 4.5rem); line-height: 1.1; letter-spacing: 0.08em; color: var(--color-print); }
+.tillset-code:focus { outline: none; }
+.tillset-code:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+@media (max-width: 40rem) {
+  .tillset-step { padding: var(--space-lg); }
+  .tillset-fields { grid-template-columns: minmax(0, 1fr); }
+  .tillset-inline .field { width: 100%; }
+}
+
+/* Kasse */
+/* Seite /till für das Team am Tresen: Handy hochkant zuerst, große Tasten. Nutzt .kasse, .tabs, .cam, .stepper, .log von oben. */
+.till-page .bar .container { gap: var(--space-sm); }
+.till-page .brand { margin-right: 0; font-size: var(--text-md); white-space: nowrap; }
+.till-biz { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); color: var(--color-muted); }
+.kasse > section { display: flex; flex-direction: column; gap: var(--space-lg); }
+.till-box { max-width: 520px; width: 100%; margin-inline: auto; padding: var(--space-xl); box-sizing: border-box; }
+.till-box h1 { font-size: var(--text-section); }
+.till-box form { display: flex; flex-direction: column; gap: var(--space-md); }
+.till-box input[aria-invalid="true"], .till-page input[aria-invalid="true"] { border-color: var(--color-error); }
+.till-note { padding: var(--space-sm) var(--space-md); border: 1px solid var(--color-error); border-radius: var(--radius-card); color: var(--color-error); font-weight: 500; }
+.till-digits { font-family: var(--font-outlier); font-size: var(--text-lg); letter-spacing: 0.12em; text-transform: uppercase; }
+.pin-form { align-items: center; }
+.pin-input { max-width: 320px; min-height: 56px; text-align: center; font: 400 var(--text-2xl)/1 var(--font-outlier); letter-spacing: 0.4em; }
+.pinpad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); width: 100%; max-width: 320px; }
+.pinpad .btn { min-height: 64px; padding: 0; font: 400 var(--text-2xl)/1 var(--font-outlier); }
+.pinpad .btn[type="submit"] { font-family: var(--font-body); font-size: var(--text-lg); font-weight: 600; }
+.till-page .stepper { grid-template-columns: 56px 72px 56px; }
+.till-page .stepper .btn, .till-page .stepper input { min-height: 56px; }
+.till-page .redeem-list .btn { white-space: normal; text-align: left; min-height: 56px; padding-block: var(--space-xs); }
+.till-page .qrbox h2 { max-width: none; }
+.till-link { font-size: var(--text-sm); overflow-wrap: anywhere; }
+.till-page .cam video { display: block; }
+@media (max-width: 40rem) {
+  .till-box { padding: var(--space-lg); }
+  .till-page .brand svg { display: none; }
+  .till-page #stampBtn, .till-page #scanBtn, .till-page #stopBtn, .till-page #newCardBtn { flex: 1 1 100%; }
+  .till-page .stepper { flex: 1 1 100%; grid-template-columns: 56px minmax(0, 1fr) 56px; }
 }

@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -10,6 +12,8 @@ import type { Mailer } from './mail.js';
 import { authRoutes } from './routes/auth.js';
 import { programRoutes } from './routes/programs.js';
 import { publicRoutes } from './routes/public.js';
+import { teamRoutes } from './routes/team.js';
+import { tillRoutes } from './routes/till.js';
 
 export const PUBLIC_DIR = resolve(import.meta.dirname, '../public');
 
@@ -27,6 +31,7 @@ const DB_PING_TIMEOUT_MS = 2000;
 /** Seiten, deren Adresse nicht dem Dateinamen entspricht. */
 const PAGES: Record<string, string> = {
   '/dashboard/card': 'dashboard-card.html',
+  '/dashboard/till': 'dashboard-till.html',
 };
 
 const VALIDATION_MESSAGES: Record<string, string> = {
@@ -34,6 +39,7 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   password: 'Das Passwort braucht mindestens 10 Zeichen.',
   businessName: 'Der Name des Betriebs braucht 2 bis 80 Zeichen.',
   token: 'Dieser Link ist ungültig. Öffne ihn bitte direkt aus der E-Mail.',
+  pin: 'Die PIN hat 4 bis 6 Ziffern.',
 };
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -110,7 +116,9 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
     // /login liefert public/login.html
     extensions: ['html'],
     setHeaders(res, path) {
-      res.header('Cache-Control', path.endsWith('.html') ? 'no-cache' : 'public, max-age=86400');
+      // HTML, CSS und JS immer beim Server nachfragen (ETag, meist nur 304), sonst sehen Besucher nach
+      // einem Update bis zu einen Tag lang alte Skripte zu neuen Seiten. Schriften ändern sich nie.
+      res.header('Cache-Control', /\.(woff2|svg)$/.test(path) ? 'public, max-age=86400' : 'no-cache');
     },
   });
 
@@ -151,7 +159,18 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
     await authRoutes(app, { config, db, mailer });
     await programRoutes(app, { db });
     await publicRoutes(app, { config, db });
+    await teamRoutes(app, { db });
+    await tillRoutes(app, { config, db });
   }
+
+  // QR-Scanner für die Kasse, direkt aus dem npm-Paket, weil die CSP keine fremden Skripte erlaubt
+  const jsQR = await readFile(createRequire(import.meta.url).resolve('jsqr'));
+  app.get('/assets/vendor/jsQR.js', (_req, reply) =>
+    reply
+      .type('application/javascript; charset=utf-8')
+      .header('Cache-Control', 'public, max-age=86400')
+      .send(jsQR),
+  );
 
   // Seiten mit Unterpfad: /dashboard/card liefert public/dashboard-card.html
   for (const [path, file] of Object.entries(PAGES)) {

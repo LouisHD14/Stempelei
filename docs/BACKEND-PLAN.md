@@ -30,6 +30,13 @@ Nicht Teil der ersten Version: Apple/Google Wallet, Wochenauswertung (Groß), Ka
 Domain: vorhanden, wird über `PUBLIC_URL` eingetragen.
 Noch offen: Hosting-Anbieter.
 
+Umsetzung von Phase 4 (8. November 2026):
+
+- Geräte werden mit einem 8-stelligen Kopplungscode freigeschaltet (10 Minuten gültig, einmal nutzbar). Das Gerät bekommt ein Cookie, gespeichert ist nur der Hash.
+- Die PIN identifiziert die Person, deshalb sind PINs pro Betrieb eindeutig. PIN-Sitzung 15 Minuten, verlängert sich bei jeder Aktion.
+- Jeder PIN-Versuch wird vor der Prüfung gebucht, so bleiben es auch bei parallelen Anfragen 5 Versuche pro Sperre.
+- Stempeln, Einlösen und Rückgängig haben einen Idempotenz-Schlüssel. Nicht gebaut: die Warnung bei mehr als 3 Stempeln in 10 Minuten.
+
 Abweichungen bei der Umsetzung von Phase 0:
 
 - Tests laufen mit dem eingebauten Test-Runner von Node (`node:test`) statt vitest. Die sicheren vitest-Versionen ließen sich mit npm 10 nicht installieren, und `node:test` braucht keine zusätzliche Abhängigkeit.
@@ -159,11 +166,11 @@ Die Website richtet sich nur an Betriebe. Adressen sind englisch, die Texte gibt
 | --- | --- | --- |
 | `/`, `/pricing`, `/imprint`, `/privacy` | Startseite für Betriebe, Preise, Rechtstexte (nur Deutsch) | fertig |
 | `/register`, `/login`, `/verify`, `/forgot-password`, `/reset-password` | Konto anlegen und anmelden | fertig |
-| `/dashboard` | Checkliste: Konto bestätigen, Karte gestalten, Kasse einrichten, erste Karte ausgeben, Paket wählen | fertig, Schritte 2–4 folgen |
+| `/dashboard` | Checkliste: Konto bestätigen, Karte gestalten, Kasse einrichten, erste Karte ausgeben, Paket wählen | fertig |
 | `/dashboard/card` | Karte gestalten: Name, Regel, Prämien, Farbe, Vorlagen, Vorschau | fertig |
-| `/dashboard/team`, `/dashboard/devices` | Team-PINs, Kassengeräte | Phase 4 |
+| `/dashboard/till` | Team-PINs, Geräte freischalten und sperren | fertig |
 | `/dashboard/billing` | Paket und Abo | Phase 5 |
-| `/till` | Kasse: PIN, Scannen, Stempeln, Verlauf | Phase 4 |
+| `/till` | Kasse: Gerät koppeln, PIN, Kamera-Scan, Kurzcode, Karte ausgeben, Stempeln, Einlösen, Rückgängig, Tagesprotokoll | fertig |
 | `/c/:token` | Gast-Karte mit QR-Code, Kurzcode und Live-Updates, später „Zu Apple/Google Wallet hinzufügen“ | fertig |
 
 ## Pakete durchsetzen
@@ -232,7 +239,7 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 | 1. Konten ✓ | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
 | 2. Karte einrichten ✓ | Programme und Prämien, Seite `/dashboard/card` | Die Einstellungen landen in der Datenbank |
 | 3. Gast-Karten ✓ | Karte ausgeben, `/c/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
-| 4. Kasse | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |
+| 4. Kasse ✓ | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |
 | 5. Bezahlung | Stripe Checkout, Webhooks, Kundenportal, Paketgrenzen | Testzahlung schaltet das Paket frei, Kündigung sperrt die Kasse |
 | 6. Start vorbereiten | Backups, Monitoring, Löschjobs, Rechtstexte, AVV, Lasttest | Wiederherstellung aus Backup klappt, Rechtstexte geprüft |
 | 7. Testphase | 2–3 echte Betriebe, Rückmeldungen einarbeiten | Eine Woche ohne kritische Fehler im Echtbetrieb |

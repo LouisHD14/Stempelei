@@ -49,7 +49,16 @@ describe('App ohne Datenbank', () => {
   it('liefert Assets mit Cache aus', async () => {
     const res = await app.inject('/assets/js/i18n.js');
     assert.equal(res.statusCode, 200);
-    assert.equal(res.headers['cache-control'], 'public, max-age=86400');
+    // Skripte werden bei jedem Aufruf geprüft, damit Updates sofort ankommen
+    assert.equal(res.headers['cache-control'], 'no-cache');
+    assert.ok(res.headers.etag);
+    const again = await app.inject({
+      url: '/assets/js/i18n.js',
+      headers: { 'if-none-match': String(res.headers.etag) },
+    });
+    assert.equal(again.statusCode, 304);
+    const font = await app.inject('/assets/fonts/geist-mono-latin-400-normal.woff2');
+    assert.equal(font.headers['cache-control'], 'public, max-age=86400');
   });
 
   it('antwortet auf unbekannte API-Pfade mit JSON', async () => {
