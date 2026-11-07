@@ -278,6 +278,20 @@ td.fig { white-space: nowrap; }
 .setup .preview { margin: 0; padding: var(--space-lg); border-radius: var(--radius-card); }
 .setup .preview figcaption { font-size: var(--text-sm); color: var(--color-muted); }
 .programs { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; }
+/* Gast-Karte */
+.guest-page .container { max-width: 560px; display: flex; flex-direction: column; gap: var(--space-lg); }
+.guest-page .flash:empty { display: none; }
+.guest-page .flash.ok { font-size: var(--text-lg); font-weight: 600; }
+.qrbox { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--space-lg); align-items: center; padding: var(--space-lg); }
+.qrbox img { width: 160px; height: 160px; image-rendering: pixelated; border-radius: 4px; }
+.qrbox-title { font-weight: 600; font-size: var(--text-lg); }
+.qrbox .code { font: 500 var(--text-2xl)/1.2 var(--font-outlier); letter-spacing: 0.12em; margin-top: var(--space-xs); }
+.tip summary { cursor: pointer; font-weight: 500; font-size: var(--text-sm); }
+.tip p { margin-top: var(--space-xs); font-size: var(--text-sm); color: var(--color-muted); }
+@media (max-width: 40rem) {
+  .qrbox { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .qrbox img { width: 220px; height: 220px; }
+}
 .dash-account { display: flex; flex-direction: column; gap: var(--space-md); }
 .dash-account h2 { font-size: var(--text-xl); }
 @media (max-width: 60rem) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

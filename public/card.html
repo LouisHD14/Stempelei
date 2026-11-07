@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="common.deine-stempelkarte-stempelei">Deine Stempelkarte · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="card">
+<header class="bar">
+  <div class="container">
+    <span class="brand" id="bizName"></span>
+    <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
+  </div>
+</header>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="4" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.45 1.08" result="mask"/>
+    <feComposite in="SourceGraphic" in2="mask" operator="in"/>
+  </filter>
+</svg>
+<main class="app guest-page">
+  <div class="container">
+    <p class="flash" id="flash" role="status" aria-live="polite"></p>
+    <div id="card" aria-live="polite"></div>
+    <section class="qrbox stock" id="qrbox" hidden aria-label="Code für die Kasse" data-i18n-attr="aria-label:guest.aria-label-code-fuer-die-kasse">
+      <img id="qr" width="220" height="220" alt="QR-Code deiner Karte" data-i18n-attr="alt:guest.alt-qr-code-deiner-karte">
+      <div>
+        <p class="qrbox-title" data-i18n="guest.an-der-kasse-zeigen">An der Kasse zeigen</p>
+        <p class="muted" data-i18n="guest.klappt-das-scannen-nicht-nenn-diesen-cod">Klappt das Scannen nicht, nenn diesen Code:</p>
+        <p class="code" id="code"></p>
+      </div>
+    </section>
+    <p class="help" id="liveNote" hidden data-i18n="guest.die-karte-aktualisiert-sich-von-selbst-s">Die Karte aktualisiert sich von selbst, sobald du einen Stempel bekommst.</p>
+    <details class="tip">
+      <summary data-i18n="guest.karte-immer-dabeihaben">Karte immer dabeihaben</summary>
+      <p data-i18n="guest.iphone-teilen-symbol-dann-zum-home-bilds">iPhone: Teilen-Symbol, dann „Zum Home-Bildschirm“. Android: Menü mit drei Punkten, dann „Zum Startbildschirm hinzufügen“. Die Karte gehört nur dir, teile den Link nicht.</p>
+    </details>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span data-i18n="common.digitale-stempelkarte-von">Digitale Stempelkarte von</span> <span class="brandline">Stempelei</span>. <a href="/privacy" data-i18n="common.datenschutz">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/i18n.js"></script>
+<script src="/assets/js/card.js"></script>
+<script src="/assets/js/guest.js"></script>
+</body>
+</html>
