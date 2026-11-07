@@ -428,4 +428,10 @@ describe('Kasse', { skip: skipWithoutDb }, () => {
     assert.match(String(res.headers['content-type']), /application\/javascript/);
     assert.match(res.body, /jsQR/);
   });
+
+  it('Kasse verlinkt die Verwaltung', async () => {
+    const res = await t.client().get('/till');
+    assert.equal(res.statusCode, 200);
+    assert.match(res.body, /<a [^>]*href="\/dashboard"[^>]*>Verwaltung<\/a>/);
+  });
 });

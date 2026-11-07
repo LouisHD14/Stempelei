@@ -262,6 +262,7 @@
     "till.stempelkarte": "Stamp card",
     "till.stopp": "Stop",
     "till.title": "Till · Stempelei",
+    "till.verwaltung": "Admin",
     "tillset.dieses-geraet-als-kasse-nutzen": "Use this device as the till",
     "tillset.freischalt-code": "Approval code",
     "tillset.geraet-freischalten": "Approve a device",
