@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="common.statistik-stempelei">Statistik · Stempelei</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body data-page="dashboard-stats">
+<header class="bar">
+  <div class="container">
+    <a class="brand" href="/dashboard" aria-label="Stempelei, zur Übersicht" data-i18n-attr="aria-label:common.aria-label-stempelei-zur-uebersicht">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11l4 8.2 9 1.2-6.5 6.3 1.6 9L24 31.4 15.9 35.7l1.6-9L11 20.4l9-1.2z" fill="currentColor"/></svg>
+      Stempelei
+    </a>
+    <nav class="nav" aria-label="Konto-Menü" data-i18n-attr="aria-label:common.aria-label-konto-menue">
+      <a href="/dashboard" data-nav="/dashboard" data-i18n="common.uebersicht">Übersicht</a>
+      <a href="/dashboard/card" data-nav="/dashboard/card" data-i18n="common.stempelkarte">Stempelkarte</a>
+      <a href="/dashboard/till" data-nav="/dashboard/till" data-i18n="common.kasse">Kasse</a>
+      <a href="/dashboard/stats" data-nav="/dashboard/stats" data-i18n="common.statistik">Statistik</a>
+    </nav>
+    <button class="lang-switch" type="button" data-lang-switch aria-label="Switch to English" lang="en">EN</button>
+    <button class="btn btn--card btn--s" id="logout" type="button" data-i18n="common.abmelden">Abmelden</button>
+  </div>
+</header>
+
+<main class="app dash dash--wide">
+  <div class="container">
+    <section class="dash-head" aria-labelledby="h-stats">
+      <a class="back" href="/dashboard" data-i18n="stats.zur-uebersicht">← Zur Übersicht</a>
+      <h1 id="h-stats" data-i18n="stats.statistik">Statistik</h1>
+      <p class="lead" data-i18n="stats.wie-oft-deine-gaeste-wiederkommen-und-wa">Wie oft deine Gäste wiederkommen und was sie einlösen. Zurückgenommene Buchungen zählen nicht mit.</p>
+    </section>
+
+    <div class="filters" role="group" aria-label="Zeitraum" data-i18n-attr="aria-label:stats.aria-label-zeitraum">
+      <div class="groove" id="ranges">
+        <button type="button" data-range="30d" aria-pressed="true" data-i18n="stats.30-tage">30 Tage</button>
+        <button type="button" data-range="90d" aria-pressed="false" data-i18n="stats.90-tage">90 Tage</button>
+        <button type="button" data-range="12m" aria-pressed="false" data-i18n="stats.12-monate">12 Monate</button>
+      </div>
+      <a class="btn btn--card btn--s" id="csv" href="/api/stats.csv?range=30d" download hidden data-i18n="stats.als-csv-herunterladen">Als CSV herunterladen</a>
+      <p class="help" id="planHint" hidden data-i18n="stats.90-tage-12-monate-und-csv-export-gibt-es">90 Tage, 12 Monate und CSV-Export gibt es im Paket Groß.</p>
+    </div>
+    <p class="flash" id="flash" role="status" aria-live="polite"></p>
+
+    <div class="stats-body" id="body">
+      <section class="empty-stats stock" id="empty" hidden aria-labelledby="h-empty">
+        <h2 id="h-empty" data-i18n="stats.noch-keine-zahlen">Noch keine Zahlen</h2>
+        <p data-i18n="stats.sobald-an-deiner-kasse-gestempelt-wird-e">Sobald an deiner Kasse gestempelt wird, erscheinen hier die Auswertungen.</p>
+        <a class="btn btn--ink btn--s" href="/till" data-i18n="stats.kasse-oeffnen">Kasse öffnen</a>
+      </section>
+
+      <section aria-labelledby="h-kpi">
+        <h2 id="h-kpi" class="visually-hidden" data-i18n="stats.auf-einen-blick">Auf einen Blick</h2>
+        <div class="kpis">
+          <div class="kpi stock" id="kStamps">
+          <p class="kpi-label" data-i18n="stats.stempel-vergeben">Stempel vergeben</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+          <div class="kpi stock" id="kRedeemed">
+          <p class="kpi-label" data-i18n="stats.praemien-eingeloest">Prämien eingelöst</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+          <div class="kpi stock" id="kIssued">
+          <p class="kpi-label" data-i18n="stats.neue-karten">Neue Karten</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+        </div>
+      </section>
+
+      <section class="stats-sec stock" aria-labelledby="h-trend">
+        <header class="stats-sec-head">
+          <h2 id="h-trend" data-i18n="stats.verlauf">Verlauf</h2>
+          <div class="groove" id="measures" role="group" aria-label="Kennzahl" data-i18n-attr="aria-label:stats.aria-label-kennzahl">
+            <button type="button" data-measure="stamps" aria-pressed="true" data-i18n="stats.stempel">Stempel</button>
+            <button type="button" data-measure="redeemed" aria-pressed="false" data-i18n="stats.einloesungen">Einlösungen</button>
+            <button type="button" data-measure="issued" aria-pressed="false" data-i18n="stats.neue-karten">Neue Karten</button>
+          </div>
+        </header>
+        <p class="chart-title" id="chartTitle"></p>
+        <div class="chart" id="chart"></div>
+        <div class="chart-tip" id="tip" role="status" hidden></div>
+        <details class="chart-table">
+          <summary data-i18n="stats.als-tabelle-anzeigen">Als Tabelle anzeigen</summary>
+          <div class="tablebox"><table id="table"></table></div>
+        </details>
+      </section>
+
+      <section class="stats-sec stock" aria-labelledby="h-guests">
+        <header class="stats-sec-head"><h2 id="h-guests" data-i18n="stats.stammgaeste">Stammgäste</h2></header>
+        <div class="kpis">
+          <div class="kpi stock" id="gActive">
+          <p class="kpi-label" data-i18n="stats.aktive-karten">Aktive Karten</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+          <div class="kpi stock" id="gReturning">
+          <p class="kpi-label" data-i18n="stats.kamen-wieder">Kamen wieder</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+          <div class="kpi stock" id="gAvg">
+          <p class="kpi-label" data-i18n="stats.besuche-pro-karte">Besuche pro Karte</p>
+          <p class="kpi-value" data-value>–</p>
+          <p class="kpi-delta" data-delta></p>
+        </div>
+        </div>
+        <p class="help" data-i18n="stats.aktiv-ist-eine-karte-mit-mindestens-eine">Aktiv ist eine Karte mit mindestens einem Stempel im Zeitraum. Ein Besuch ist ein Tag mit Stempel, „kamen wieder“ heißt an mindestens zwei Tagen.</p>
+      </section>
+
+      <section class="stats-sec stock" aria-labelledby="h-rewards">
+        <header class="stats-sec-head"><h2 id="h-rewards" data-i18n="stats.praemien">Prämien</h2></header>
+        <ol class="rank" id="rewards"></ol>
+        <div class="near">
+          <p class="kpi-value" id="near">–</p>
+          <p class="help" data-i18n="stats.karten-kurz-vor-einer-praemie-ihnen-fehl">Karten kurz vor einer Prämie: ihnen fehlen höchstens 2 Stempel. Gezählt werden Karten mit Aktivität in den letzten 90 Tagen.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <p><span class="brandline">Stempelei.</span> <span data-i18n="common.digitale-stempelkarten-fuer-restaurants">Digitale Stempelkarten für Restaurants, Cafés und Läden.</span> <a href="/imprint" data-i18n="common.impressum">Impressum</a> · <a href="/privacy" data-i18n="common.datenschutz">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/i18n.js"></script>
+<script src="/assets/js/account.js"></script>
+<script src="/assets/js/stats.js"></script>
+</body>
+</html>
