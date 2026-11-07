@@ -70,14 +70,19 @@ export interface ProgramView {
 }
 
 /** Aktive Karten eines Betriebs mit ihren aktiven Prämien, älteste zuerst. */
-export async function loadPrograms(db: Db, businessId: string, ids?: string[]): Promise<ProgramView[]> {
+export async function loadPrograms(
+  db: Db,
+  businessId: string,
+  ids?: string[],
+  opts: { includeArchived?: boolean } = {},
+): Promise<ProgramView[]> {
   const progs = await db
     .select({ id: programs.id, name: programs.name, earnRule: programs.earnRule, ink: programs.ink })
     .from(programs)
     .where(
       and(
         eq(programs.businessId, businessId),
-        isNull(programs.archivedAt),
+        opts.includeArchived ? undefined : isNull(programs.archivedAt),
         ids ? inArray(programs.id, ids) : undefined,
       ),
     )

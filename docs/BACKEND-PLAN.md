@@ -164,7 +164,7 @@ Die Website richtet sich nur an Betriebe. Adressen sind englisch, die Texte gibt
 | `/dashboard/team`, `/dashboard/devices` | Team-PINs, Kassengeräte | Phase 4 |
 | `/dashboard/billing` | Paket und Abo | Phase 5 |
 | `/till` | Kasse: PIN, Scannen, Stempeln, Verlauf | Phase 4 |
-| `/c/:token` | Gast-Karte, später mit „Zu Apple/Google Wallet hinzufügen“ | Phase 3 |
+| `/c/:token` | Gast-Karte mit QR-Code, Kurzcode und Live-Updates, später „Zu Apple/Google Wallet hinzufügen“ | fertig |
 
 ## Pakete durchsetzen
 
@@ -231,7 +231,7 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 | 0. Grundgerüst ✓ | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests) | `docker compose up` startet App und Datenbank, CI ist grün |
 | 1. Konten ✓ | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
 | 2. Karte einrichten ✓ | Programme und Prämien, Seite `/dashboard/card` | Die Einstellungen landen in der Datenbank |
-| 3. Gast-Karten | Karte ausgeben, `/c/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
+| 3. Gast-Karten ✓ | Karte ausgeben, `/c/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
 | 4. Kasse | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |
 | 5. Bezahlung | Stripe Checkout, Webhooks, Kundenportal, Paketgrenzen | Testzahlung schaltet das Paket frei, Kündigung sperrt die Kasse |
 | 6. Start vorbereiten | Backups, Monitoring, Löschjobs, Rechtstexte, AVV, Lasttest | Wiederherstellung aus Backup klappt, Rechtstexte geprüft |

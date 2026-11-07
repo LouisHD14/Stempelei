@@ -9,6 +9,7 @@ import type { Db } from './db/client.js';
 import type { Mailer } from './mail.js';
 import { authRoutes } from './routes/auth.js';
 import { programRoutes } from './routes/programs.js';
+import { publicRoutes } from './routes/public.js';
 
 export const PUBLIC_DIR = resolve(import.meta.dirname, '../public');
 
@@ -149,6 +150,7 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
   if (db && mailer) {
     await authRoutes(app, { config, db, mailer });
     await programRoutes(app, { db });
+    await publicRoutes(app, { config, db });
   }
 
   // Seiten mit Unterpfad: /dashboard/card liefert public/dashboard-card.html
