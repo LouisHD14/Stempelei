@@ -31,6 +31,7 @@ describe('Datenbank', { skip: url ? false : 'TEST_DATABASE_URL ist nicht gesetzt
     assert.deepEqual(
       rows.map((r) => r.table_name),
       [
+        'apple_registrations',
         'businesses',
         'cards',
         'devices',

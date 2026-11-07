@@ -15,6 +15,7 @@ import { publicRoutes } from './routes/public.js';
 import { statsRoutes } from './routes/stats.js';
 import { teamRoutes } from './routes/team.js';
 import { tillRoutes } from './routes/till.js';
+import { type Wallet, walletRoutes } from './wallet/index.js';
 
 export const PUBLIC_DIR = resolve(import.meta.dirname, '../public');
 
@@ -25,6 +26,8 @@ export interface AppDeps {
   /** Ohne Datenbank und Mailer startet nur die statische Website (für Tests ohne Datenbank). */
   db?: Db;
   mailer?: Mailer;
+  /** Apple und Google Wallet, nur wenn eingerichtet */
+  wallet?: Wallet;
 }
 
 const DB_PING_TIMEOUT_MS = 2000;
@@ -52,7 +55,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise<FastifyInstance> {
+export async function buildApp({ config, pingDb, db, mailer, wallet }: AppDeps): Promise<FastifyInstance> {
   const app = Fastify({
     trustProxy: config.trustProxy,
     logger: {
@@ -164,6 +167,7 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
     await teamRoutes(app, { db });
     await tillRoutes(app, { config, db });
     await statsRoutes(app, { db });
+    await walletRoutes(app, { config, db, wallet: wallet ?? {}, publicDir: PUBLIC_DIR });
   }
 
   // QR-Scanner für die Kasse, direkt aus dem npm-Paket, weil die CSP keine fremden Skripte erlaubt

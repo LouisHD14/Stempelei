@@ -66,11 +66,22 @@ export interface GuestCardView {
   rewards: { threshold: number; text: string; claimed: boolean }[];
 }
 
-/** Karte so, wie der Gast sie sieht: ohne interne IDs, ohne Daten anderer Karten. */
-export async function guestCardView(db: Db, token: string): Promise<(GuestCardView & { id: string }) | null> {
+/** Karte so, wie der Gast sie sieht, plus die internen Angaben, die nur der Server braucht. */
+export async function loadCard(
+  db: Db,
+  by: { token: string } | { id: string },
+): Promise<{
+  id: string;
+  token: string;
+  programId: string;
+  businessId: string;
+  updatedAt: Date;
+  view: GuestCardView;
+} | null> {
   const [row] = await db
     .select({
       id: cards.id,
+      token: cards.publicToken,
       businessId: cards.businessId,
       programId: cards.programId,
       stamps: cards.stamps,
@@ -78,29 +89,48 @@ export async function guestCardView(db: Db, token: string): Promise<(GuestCardVi
       shortCode: cards.shortCode,
       claimed: cards.claimedRewardIds,
       business: businesses.name,
+      lastActivityAt: cards.lastActivityAt,
     })
     .from(cards)
     .innerJoin(businesses, eq(businesses.id, cards.businessId))
-    .where(and(eq(cards.publicToken, token), isNull(businesses.deletedAt)));
+    .where(
+      and(
+        'token' in by ? eq(cards.publicToken, by.token) : eq(cards.id, by.id),
+        isNull(businesses.deletedAt),
+      ),
+    );
   if (!row) return null;
   // Auch eine archivierte Kartenart soll für Gäste lesbar bleiben, deshalb ohne Archiv-Filter laden
   const [prog] = await loadPrograms(db, row.businessId, [row.programId], { includeArchived: true });
   if (!prog) return null;
   return {
     id: row.id,
-    business: row.business,
-    name: prog.name,
-    earnRule: prog.earnRule,
-    ink: prog.ink,
-    stamps: row.stamps,
-    cycle: row.cycle,
-    shortCode: row.shortCode,
-    rewards: prog.rewards.map((r) => ({
-      threshold: r.threshold,
-      text: r.text,
-      claimed: row.claimed.includes(r.id),
-    })),
+    token: row.token,
+    programId: row.programId,
+    businessId: row.businessId,
+    // Wallet fragt „was hat sich seit … geändert“: Stempel oder Änderung der Kartenart zählen
+    updatedAt: new Date(Math.max(row.lastActivityAt.getTime(), prog.updatedAt.getTime())),
+    view: {
+      business: row.business,
+      name: prog.name,
+      earnRule: prog.earnRule,
+      ink: prog.ink,
+      stamps: row.stamps,
+      cycle: row.cycle,
+      shortCode: row.shortCode,
+      rewards: prog.rewards.map((r) => ({
+        threshold: r.threshold,
+        text: r.text,
+        claimed: row.claimed.includes(r.id),
+      })),
+    },
   };
+}
+
+/** Karte so, wie der Gast sie sieht: ohne interne IDs, ohne Daten anderer Karten. */
+export async function guestCardView(db: Db, token: string): Promise<(GuestCardView & { id: string }) | null> {
+  const card = await loadCard(db, { token });
+  return card ? { id: card.id, ...card.view } : null;
 }
 
 /** QR-Code als SVG, schwarz auf weiß mit Ruhezone, damit jede Kamera ihn liest. */

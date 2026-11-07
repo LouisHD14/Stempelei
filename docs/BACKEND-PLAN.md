@@ -170,6 +170,7 @@ Die Website richtet sich nur an Betriebe. Adressen sind englisch, die Texte gibt
 | `/dashboard/card` | Karte gestalten: Name, Regel, Prämien, Farbe, Vorlagen, Vorschau | fertig |
 | `/dashboard/till` | Team-PINs, Geräte freischalten und sperren | fertig |
 | `/dashboard/stats` | Statistik: Stempel, Einlösungen, neue Karten (Verlauf, Vergleich zur Vorperiode), Stammgäste, Prämien. 30 Tage für alle, 90 Tage, 12 Monate und CSV im Paket Groß | fertig |
+| `/c/:token` + Wallet | „Zu Apple Wallet hinzufügen“ (.pkpass, Web-Service, Push über APNs) und „Zu Google Wallet hinzufügen“ (signierter JWT-Link, PATCH nach Änderungen). Aktiv, sobald Zugangsdaten und offizielle Knöpfe vorhanden sind | gebaut, Zugangsdaten fehlen |
 | `/dashboard/billing` | Paket und Abo | Phase 5 |
 | `/till` | Kasse: Gerät koppeln, PIN, Kamera-Scan, Kurzcode, Karte ausgeben, Stempeln, Einlösen, Rückgängig, Tagesprotokoll | fertig |
 | `/c/:token` | Gast-Karte mit QR-Code, Kurzcode und Live-Updates, später „Zu Apple/Google Wallet hinzufügen“ | fertig |

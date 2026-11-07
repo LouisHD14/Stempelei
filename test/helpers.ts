@@ -5,6 +5,7 @@ import { loadConfig } from '../src/config.js';
 import { createDb } from '../src/db/client.js';
 import { runMigrations } from '../src/db/migrate.js';
 import type { Mail } from '../src/mail.js';
+import type { Wallet } from '../src/wallet/index.js';
 
 // Diese Tests löschen den Inhalt der Datenbank. Sie laufen nur mit einer eigenen Test-Datenbank.
 export const TEST_DB = process.env.TEST_DATABASE_URL;
@@ -14,7 +15,7 @@ export const ORIGIN = 'https://stempelei.test';
 let ipCounter = 0;
 
 /** App mit leerer Datenbank und Mail-Postfach im Speicher. */
-export async function setupApp() {
+export async function setupApp(opts: { wallet?: Wallet } = {}) {
   const url = TEST_DB as string;
   const admin = createDb(url, { max: 1 });
   await admin.sql.unsafe(
@@ -29,6 +30,7 @@ export async function setupApp() {
     config,
     pingDb: conn.ping,
     db: conn.db,
+    ...(opts.wallet ? { wallet: opts.wallet } : {}),
     mailer: {
       send: async (m) => {
         mails.push(m);

@@ -68,8 +68,44 @@
     $('qr').src = `/api/public/cards/${token}/qr.svg`;
     $('qrbox').hidden = false;
     listen();
+    walletButtons();
   }
 
-  window.I18N.onChange(() => card && show(card));
+  // ---------- Apple und Google Wallet ----------
+  let wallet = null;
+
+  /** Die offiziellen Knöpfe, passend zum Gerät: iPhone/Mac Apple, Android Google, sonst beide. */
+  async function walletButtons() {
+    try {
+      const res = await fetch('/api/public/wallet');
+      if (res.ok) wallet = await res.json();
+    } catch {
+      return; // ohne Wallet-Knöpfe geht es auch
+    }
+    if (!wallet) return;
+    const ua = navigator.userAgent;
+    const apple = /iPhone|iPad|iPod|Macintosh/.test(ua);
+    const android = /Android/.test(ua);
+    const showApple = wallet.apple && !android;
+    const showGoogle = wallet.google && !apple;
+    $('appleWallet').hidden = !showApple;
+    $('googleWallet').hidden = !showGoogle;
+    $('appleWallet').href = `/api/public/cards/${token}/wallet/apple`;
+    $('googleWallet').href = `/api/public/cards/${token}/wallet/google`;
+    $('wallet').hidden = !showApple && !showGoogle;
+    badges();
+  }
+
+  /** Knopf-Grafiken in der Sprache der Seite (Apple und Google verlangen ihre eigenen Übersetzungen). */
+  function badges() {
+    const lang = window.I18N.lang === 'en' ? 'en' : 'de';
+    $('appleWallet').querySelector('img').src = `/assets/wallet/badges/${lang}/apple.svg`;
+    $('googleWallet').querySelector('img').src = `/assets/wallet/badges/${lang}/google.svg`;
+  }
+
+  window.I18N.onChange(() => {
+    if (card) show(card);
+    if (wallet) badges();
+  });
   start();
 })();

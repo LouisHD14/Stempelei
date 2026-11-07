@@ -6,6 +6,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -121,6 +122,8 @@ export const programs = pgTable(
     name: text('name').notNull(),
     earnRule: text('earn_rule').notNull().default(''),
     ink: text('ink').notNull().default('blau'),
+    /** Letzte Änderung durch den Inhaber. Wallet-Pässe holen sich danach den neuen Stand. */
+    updatedAt: tz('updated_at').notNull().defaultNow(),
     archivedAt: tz('archived_at'),
     createdAt: createdAt(),
   },
@@ -272,4 +275,21 @@ export const tillSessions = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('till_sessions_staff_idx').on(t.staffId), index('till_sessions_device_idx').on(t.deviceId)],
+);
+
+/** iPhones, auf denen ein Gast seine Karte in Apple Wallet gelegt hat. Bekommen nach jeder Änderung einen Push. */
+export const appleRegistrations = pgTable(
+  'apple_registrations',
+  {
+    deviceId: text('device_id').notNull(),
+    cardId: uuid('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    pushToken: text('push_token').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.deviceId, t.cardId] }),
+    index('apple_registrations_card_idx').on(t.cardId),
+  ],
 );

@@ -4,6 +4,7 @@ import type { Db } from '../db/client.js';
 import { businesses, programs, rewards } from '../db/schema.js';
 import { PLAN_LIMITS } from '../domain/plans.js';
 import { MAX_STAMPS } from '../domain/stamps.js';
+import { publishProgramChange } from '../live.js';
 import { body, type SessionUser } from './auth.js';
 
 export const INKS = ['tinte', 'blau', 'gruen', 'koralle'] as const;
@@ -67,6 +68,7 @@ export interface ProgramView {
   earnRule: string;
   ink: string;
   rewards: { id: string; threshold: number; text: string }[];
+  updatedAt: Date;
 }
 
 /** Aktive Karten eines Betriebs mit ihren aktiven Prämien, älteste zuerst. */
@@ -77,7 +79,13 @@ export async function loadPrograms(
   opts: { includeArchived?: boolean } = {},
 ): Promise<ProgramView[]> {
   const progs = await db
-    .select({ id: programs.id, name: programs.name, earnRule: programs.earnRule, ink: programs.ink })
+    .select({
+      id: programs.id,
+      name: programs.name,
+      earnRule: programs.earnRule,
+      ink: programs.ink,
+      updatedAt: programs.updatedAt,
+    })
     .from(programs)
     .where(
       and(
@@ -184,7 +192,7 @@ export async function programRoutes(app: FastifyInstance, { db }: { db: Db }): P
       const found = await db.transaction(async (tx) => {
         const [prog] = await tx
           .update(programs)
-          .set(clean(req.body))
+          .set({ ...clean(req.body), updatedAt: new Date() })
           .where(
             and(
               eq(programs.id, req.params.id),
@@ -223,6 +231,7 @@ export async function programRoutes(app: FastifyInstance, { db }: { db: Db }): P
         return true;
       });
       if (!found) return reply.code(404).send({ error: 'not_found', message: 'Diese Karte gibt es nicht.' });
+      publishProgramChange(req.params.id);
       const [view] = await loadPrograms(db, u.businessId, [req.params.id]);
       return { program: view };
     },
