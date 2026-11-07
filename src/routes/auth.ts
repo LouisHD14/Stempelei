@@ -43,7 +43,7 @@ const password = { type: 'string', minLength: PASSWORD_MIN, maxLength: PASSWORD_
 const token = { type: 'string', pattern: '^[A-Za-z0-9_-]{43}$' } as const;
 /** Sprache der Seite, aus der die Anfrage kommt. Bestimmt die Sprache der E-Mail. */
 const locale = { type: 'string', enum: [...LOCALES] } as const;
-const body = (properties: Record<string, object>, optional: Record<string, object> = {}) => ({
+export const body = (properties: Record<string, object>, optional: Record<string, object> = {}) => ({
   body: {
     type: 'object',
     additionalProperties: false,

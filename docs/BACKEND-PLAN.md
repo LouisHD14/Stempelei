@@ -160,7 +160,7 @@ Die Website richtet sich nur an Betriebe. Adressen sind englisch, die Texte gibt
 | `/`, `/pricing`, `/imprint`, `/privacy` | Startseite für Betriebe, Preise, Rechtstexte (nur Deutsch) | fertig |
 | `/register`, `/login`, `/verify`, `/forgot-password`, `/reset-password` | Konto anlegen und anmelden | fertig |
 | `/dashboard` | Checkliste: Konto bestätigen, Karte gestalten, Kasse einrichten, erste Karte ausgeben, Paket wählen | fertig, Schritte 2–4 folgen |
-| `/dashboard/card` | Karte gestalten: Name, Regel, Prämien, Farbe | Phase 2 |
+| `/dashboard/card` | Karte gestalten: Name, Regel, Prämien, Farbe, Vorlagen, Vorschau | fertig |
 | `/dashboard/team`, `/dashboard/devices` | Team-PINs, Kassengeräte | Phase 4 |
 | `/dashboard/billing` | Paket und Abo | Phase 5 |
 | `/till` | Kasse: PIN, Scannen, Stempeln, Verlauf | Phase 4 |
@@ -230,7 +230,7 @@ Jede Phase endet mit etwas, das man ausprobieren kann.
 | --- | --- | --- |
 | 0. Grundgerüst ✓ | Projektstruktur, Docker Compose, Migrationen, CI (Typen, Lint, Tests) | `docker compose up` startet App und Datenbank, CI ist grün |
 | 1. Konten ✓ | Registrieren, E-Mail bestätigen, Login, Passwort-Reset | Ein Betrieb kann sich anlegen und anmelden |
-| 2. Karte einrichten | Programme und Prämien, Seite `/dashboard/card` | Die Einstellungen landen in der Datenbank |
+| 2. Karte einrichten ✓ | Programme und Prämien, Seite `/dashboard/card` | Die Einstellungen landen in der Datenbank |
 | 3. Gast-Karten | Karte ausgeben, `/c/:token`, QR mit Link, Live-Updates | Ein Gast öffnet seine Karte auf dem eigenen Handy |
 | 4. Kasse | Geräte freischalten, Team-PINs, Scannen, Stempeln, Einlösen, Rückgängig, Verlauf | Zwei Geräte stempeln gleichzeitig ohne Fehler |
 | 5. Bezahlung | Stripe Checkout, Webhooks, Kundenportal, Paketgrenzen | Testzahlung schaltet das Paket frei, Kündigung sperrt die Kasse |

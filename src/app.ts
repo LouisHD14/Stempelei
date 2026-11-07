@@ -8,6 +8,7 @@ import type { Config } from './config.js';
 import type { Db } from './db/client.js';
 import type { Mailer } from './mail.js';
 import { authRoutes } from './routes/auth.js';
+import { programRoutes } from './routes/programs.js';
 
 export const PUBLIC_DIR = resolve(import.meta.dirname, '../public');
 
@@ -21,6 +22,11 @@ export interface AppDeps {
 }
 
 const DB_PING_TIMEOUT_MS = 2000;
+
+/** Seiten, deren Adresse nicht dem Dateinamen entspricht. */
+const PAGES: Record<string, string> = {
+  '/dashboard/card': 'dashboard-card.html',
+};
 
 const VALIDATION_MESSAGES: Record<string, string> = {
   email: 'Bitte gib eine gültige E-Mail-Adresse ein.',
@@ -140,7 +146,15 @@ export async function buildApp({ config, pingDb, db, mailer }: AppDeps): Promise
   });
 
   // Erst nach setErrorHandler: Fastify merkt sich den Fehler-Handler beim Anlegen der Route
-  if (db && mailer) await authRoutes(app, { config, db, mailer });
+  if (db && mailer) {
+    await authRoutes(app, { config, db, mailer });
+    await programRoutes(app, { db });
+  }
+
+  // Seiten mit Unterpfad: /dashboard/card liefert public/dashboard-card.html
+  for (const [path, file] of Object.entries(PAGES)) {
+    app.get(path, (_req, reply) => reply.header('Cache-Control', 'no-cache').sendFile(file));
+  }
 
   return app;
 }
